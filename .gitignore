@@ -1,0 +1,282 @@
+# ============================================
+# .gitignore - Star Trek Database
+# Více admirál Jiřík & Claude.AI
+# ============================================
+
+# ============================================
+# Node.js & NPM
+# ============================================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.pnpm-debug.log*
+
+# ============================================
+# Firebase & Environment
+# ============================================
+.env
+.env.local
+.env.*.local
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+.firebase/
+.firebaserc
+
+# Firebase credentials (DŮLEŽITÉ!)
+*-firebase-adminsdk-*.json
+serviceAccountKey.json
+firebase-config.js
+
+# ============================================
+# IDE & Editors
+# ============================================
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+.history/
+
+# JetBrains (WebStorm, PhpStorm, IntelliJ)
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Sublime Text
+*.sublime-workspace
+*.sublime-project
+
+# Vim
+*.swp
+*.swo
+*~
+.*.sw[a-p]
+
+# Emacs
+*~
+\#*\#
+.#*
+
+# Atom
+.atom/
+
+# ============================================
+# Operating System
+# ============================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================
+# Build & Distribution
+# ============================================
+dist/
+build/
+out/
+.next/
+.nuxt/
+.cache/
+public/build/
+*.min.js
+*.min.css
+
+# ============================================
+# Logs & Debugging
+# ============================================
+*.log
+logs/
+*.pid
+*.seed
+*.pid.lock
+.grunt
+lib-cov
+coverage/
+.nyc_output/
+.cache
+*.lcov
+.eslintcache
+.stylelintcache
+
+# ============================================
+# Testing
+# ============================================
+coverage/
+.nyc_output/
+*.lcov
+test-results/
+playwright-report/
+*.spec.js.snap
+
+# ============================================
+# Temporary Files
+# ============================================
+*.tmp
+*.temp
+*.bak
+*.backup
+*.swp
+*.swo
+*.orig
+*~
+
+# ============================================
+# Project Specific
+# ============================================
+
+# Performance reports (můžeš commitnout, pokud chceš)
+# performance_report_*.txt
+
+# Exported logs (můžeš commitnout, pokud chceš)
+# console-log-*.html
+
+# User-specific settings
+user-settings.json
+local-config.js
+
+# Development databases
+*.db
+*.sqlite
+*.sqlite3
+
+# ============================================
+# Dependencies & Packages
+# ============================================
+jspm_packages/
+web_modules/
+bower_components/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Microbundle cache
+.rpt2_cache/
+.rts2_cache_cjs/
+.rts2_cache_es/
+.rts2_cache_umd/
+
+# Optional REPL history
+.node_repl_history
+
+# ============================================
+# Security & Sensitive Data
+# ============================================
+
+# API keys (NIKDY NECOMMITUJ!)
+*apikey*
+*api-key*
+*secret*
+*password*
+*.pem
+*.key
+*.cert
+*.crt
+credentials.json
+
+# OAuth tokens
+token.json
+.oauth/
+
+# ============================================
+# Miscellaneous
+# ============================================
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# Media files (pokud nejsou součástí projektu)
+# *.mp4
+# *.mov
+# *.mp3
+# *.wav
+
+# Large files
+*.iso
+*.dmg
+
+# ============================================
+# CDN & External Resources (Optional)
+# ============================================
+# cdn/
+# external-libs/
+
+# ============================================
+# Custom - Star Trek Database
+# ============================================
+
+# Backup soubory
+backups/
+*.backup.js
+*.backup.html
+*.backup.css
+
+# Test soubory
+test-*.html
+test-*.js
+playground.html
+
+# Personal notes
+notes.txt
+TODO.md
+IDEAS.md
+
+# ============================================
+# KEEP THESE FILES (Examples)
+# ============================================
+# !README.md
+# !LICENSE
+# !.gitignore
+# !package.json
