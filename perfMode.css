@@ -2,33 +2,36 @@
            KOMPAKTNÍ INDIKÁTOR (vpravo dole)
            ======================================== */
         #perfMode {
-            position: fixed;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0, 20, 40, 0.95);
-             
-            color: #00ff00;
-            padding: 8px 15px;
-            border-radius: 8px;
-            font-size: 0.85em;
-            font-family: 'Courier New', monospace;
-            z-index: 9998;
-            border: 1px solid #00ff00;
-            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
-            cursor: pointer;
-            transition: all 0.2s ease;
-            user-select: none;
-        }
+    position: absolute;           /* ZMĚNA: Teď se bude hýbat se stránkou */
+    top: 85px;                    /* 30px od vrchu stránky */
+    left: 50%;                    /* Střed */
+    transform: translateX(-50%);  /* Centrování */
+    
+    background: rgba(0, 20, 40, 0.95);
+    color: #00ff00;
+    padding: 8px 15px;
+    border-radius: 8px;
+    font-size: 0.85em;
+    font-family: 'Courier New', monospace;
+    z-index: 9998;
+    border: 1px solid #00ff00;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+}
 
         #perfMode:hover {
-            background: rgba(0, 40, 80, 0.95);
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
-            transform: scale(1.05);
-        }
+    background: rgba(0, 40, 80, 0.95);
+    box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+    /* Musíme zachovat translateX(-50%) a k tomu přidat scale */
+    transform: translateX(-50%) scale(1.05); 
+}
 
-        #perfMode:active {
-            transform: scale(0.98);
-        }
+#perfMode:active {
+    /* I tady musíme držet střed */
+    transform: translateX(-50%) scale(0.98);
+}
 
         #perfMode.warning {
             border-color: #ffaa00;
@@ -250,6 +253,8 @@
             #perfMode {
                 font-size: 0.75em;
                 padding: 6px 10px;
+                width: 60%;
+                top: 50px;
             }
         }
 
