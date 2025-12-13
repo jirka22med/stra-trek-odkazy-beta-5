@@ -1,0 +1,982 @@
+/* style.css - FULL PERFORMANCE MODE - ŽÁDNÉ ANIMACE/PŘECHODY */
+
+* {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* ========================================
+   MĚLNICKÁ TAPETA v2.2 - MOBILE OPTIMIZED
+   🖖 Více admirál Jiřík & Claude.AI
+   ======================================== */
+
+/* ====== ZÁKLADNÍ KONTEJNER ====== */
+.background-image-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    overflow: hidden;
+    
+    /* KRITICKÉ: BEZ GPU akcelerace pro pozadí! */
+    pointer-events: none; /* Důležité pro scroll performance */
+}
+
+.background-image-container img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    opacity: 1.0;
+    
+    /* Žádné GPU triky pro statický obrázek */
+    user-select: none;
+    -webkit-user-select: none;
+    pointer-events: none;
+}
+
+/* ====== MOBILNÍ OPTIMALIZACE ====== */
+@media (max-width: 768px) {
+    /* Snížená kvalita obrázku jen pro mobil (optional) */
+    .background-image-container img {
+        image-rendering: -webkit-optimize-contrast; /* Safari */
+        image-rendering: crisp-edges; /* Chrome/Edge */
+    }
+    
+    /* Vypnutí backdrop-filter na mobilech */
+    .card, 
+    .music-player,
+    .playlist-item,
+    [class*="glass"],
+    [class*="panel"] {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        
+        /* Náhrada za blur - solidní průhlednost */
+        background: rgba(10, 20, 45, 0.85) !important;
+    }
+    
+    /* GPU akcelerace JEN pro scrollovací obsah */
+    main,
+    .content-wrapper,
+    .playlist-container {
+        transform: translateZ(0); /* Jen Z-osa! */
+        -webkit-transform: translateZ(0);
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+    }
+}
+
+/* ====== DESKTOP - PLNý EFEKT ====== */
+@media (min-width: 769px) {
+    /* Zde můžeš nechat backdrop-filter */
+    .card, 
+    .music-player,
+    .playlist-item {
+        backdrop-filter: blur(12px) saturate(180%);
+        -webkit-backdrop-filter: blur(12px) saturate(180%);
+    }
+}
+
+/* ====== HIGH REFRESH RATE FIX (120Hz+) ====== */
+@media (prefers-reduced-motion: no-preference) and (max-width: 768px) {
+    * {
+        /* Omez animace na mobilu */
+        animation-duration: 0.2s !important;
+        transition-duration: 0.2s !important;
+    }
+}
+
+/* ====== INFINIX NOTE 30 SPECIFICKÝ FIX ====== */
+@supports (-webkit-touch-callout: none) {
+    /* iOS/Android WebKit optimalizace */
+    body {
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .background-image-container {
+        -webkit-transform: translate3d(0, 0, 0);
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+body {
+    font-family: 'Orbitron', 'Courier New', monospace;
+    color: #e0ffff;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: rgba(10, 20, 45, 0.92);
+}
+
+.page-container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #FF7800;
+    padding: 30px 20px;
+    font-size: 3em;
+    margin-bottom: 5px;
+    letter-spacing: 3px;
+    margin-top: -50px;
+    font-weight: 900;
+}
+
+.form-container {
+    background: rgba(10, 20, 45, 0.92);
+     
+    border: 2px solid rgba(0, 255, 255, 0.6);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+
+
+.form-container label {
+    color: #00ffff;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+    display: block;
+    font-weight: bold;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 255, 255, 0.4);
+}
+
+.form-container input[type="text"],
+.form-container input[type="url"] {
+    width: 100%;
+    padding: 15px;
+    border: 1px solid rgba(0, 255, 255, 0.5);
+    border-radius: 10px;
+    background: rgba(10, 20, 50, 0.6);
+    color: #00ffff;
+    font-family: 'Courier New', monospace;
+    font-size: 1em;
+}
+
+.form-container input[type="text"]:focus,
+.form-container input[type="url"]:focus {
+    outline: none;
+    border-color: #00ffff;
+    background: rgba(10, 20, 50, 0.8);
+}
+
+ 
+
+.form-container button, #clearAllLinksButton {
+    background: rgba(0, 150, 150, 0.6);
+    color: #fff;
+    border: 1px solid rgba(0, 255, 255, 0.5);
+    padding: 12px 30px;
+    border-radius: 50px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+
+
+.form-container button:active, #clearAllLinksButton:active {
+    transform: scale(0.98);
+}
+
+#clearAllLinksButton {
+    display: none;
+    background: rgba(180, 50, 50, 0.6);
+    border-color: rgba(255, 100, 100, 0.5);
+    margin: 20px auto;
+     
+}
+
+
+
+/* Tabulka wrapper */
+.table-scroll-wrapper {
+    overflow-x: auto;
+    margin-bottom: 5px;
+    border-radius: 12px;
+    -webkit-overflow-scrolling: touch;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #000000;
+    border-top: 2px solid rgba(0, 255, 255, 0.5);
+    border-bottom: 2px solid rgba(0, 255, 255, 0.5);
+    border-left: 2px solid rgba(0, 255, 255, 0.5);
+    border-right: 2px solid rgba(0, 255, 255, 0.5);
+    overflow: hidden;
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: center;
+    font-size: 1.2em;
+    border: none;
+    border-right: 1px solid rgba(0, 255, 255, 0.2);
+    font-family: Arial, sans-serif;
+    color: #00ffff;
+    font-weight: 900;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.9);
+}
+
+th:last-child, td:last-child {
+    border-right: none;
+}
+
+tr:not(:last-child) td {
+    border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+}
+
+th {
+    background: rgba(255, 170, 0, 0.85);
+    color: #FF8C00;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 1.1em;
+    border-bottom: 5px solid #9ACD32;
+}
+
+/* Akční tlačítka v tabulce */
+.action-buttons {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    align-items: center;
+}
+
+.action-buttons button {
+    background: none;
+    border: 1px solid rgba(0, 150, 150, 0.5);
+    font-size: 1em;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: #00ffff;
+}
+
+.action-buttons button:active {
+    transform: scale(0.95);
+}
+
+.action-buttons button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #888;
+    font-size: 1.2em;
+    grid-column: 1 / -1;
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    z-index: 3000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: rgba(10, 20, 45, 0.95);
+     
+    padding: 40px;
+    border-radius: 20px;
+    border: 2px solid rgba(0, 255, 255, 0.7);
+    width: 90%;
+    max-width: 500px;
+    color: #00ffff;
+    text-align: center;
+    position: relative;
+    z-index: 1000;
+}
+
+.modal-content h2 {
+    color: #00ffff;
+    margin-bottom: 5px;
+    font-size: 1.8em;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #00ffff;
+    text-align: left;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 255, 255, 0.4);
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="url"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 5px;
+    border: 1px solid rgba(0, 255, 255, 0.5);
+    border-radius: 8px;
+    background: rgba(10, 20, 50, 0.6);
+    color: #00ffff;
+    font-size: 1em;
+}
+
+.modal-content input:focus {
+    outline: none;
+    border-color: #00ffff;
+    background: rgba(10, 20, 50, 0.8);
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.modal-buttons button {
+    flex: 1;
+    padding: 12px 25px;
+    border: 1px solid rgba(0, 255, 255, 0.5);
+    border-radius: 20px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#saveEditButton {
+    background: rgba(0, 150, 100, 0.6);
+    color: #fff;
+    border-color: rgba(0, 255, 150, 0.5);
+}
+
+#cancelEditButton {
+    background: rgba(150, 50, 50, 0.6);
+    color: #fff;
+    border-color: rgba(255, 100, 100, 0.5);
+}
+
+.sync-status-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 150, 150, 0.7);
+    color: #fff;
+    padding: 15px 25px;
+    border-radius: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 1em;
+    z-index: 4000;
+    display: none;
+    border: 1px solid rgba(0, 255, 255, 0.5);
+    opacity: 0;
+}
+
+.sync-status-message.error {
+    background: rgba(150, 50, 50, 0.7);
+    border-color: rgba(255, 100, 100, 0.5);
+}
+
+.url-button {
+    background: linear-gradient(135deg, #255c9a, #1a3d6b);
+    color: #e9f4ff;
+    border: 1px solid #4c6ef5;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 50, 100, 0.25);
+}
+
+.url-button:active {
+    background: linear-gradient(135deg, #1d4473, #152f52);
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 50, 100, 0.25);
+}
+
+.copyright-footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: rgba(0, 255, 255, 0.75);
+    font-size: 0.9em;
+    border-top: 1px solid rgba(0, 255, 255, 0.25);
+    text-shadow: 0 0 6px rgba(0, 255, 255, 0.4);
+    background: rgba(0, 0, 0, 0.1);
+     
+    letter-spacing: 0.05em;
+}
+
+
+
+.tlacitka {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin: 30px auto 40px auto;
+    padding: 20px;
+    width: 100%;
+    height: 90px;
+    max-width: 450px;
+    background: rgba(10, 20, 45, 0.92);
+     
+    border: 2px solid rgba(0, 255, 255, 0.6);
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.15);
+}
+
+.tlacitka button {
+    background: linear-gradient(135deg, #007b7b, #00b8b8);
+    color: #fff;
+    border: 1px solid rgba(0, 255, 255, 0.5);
+    border-radius: 30px;
+    padding: 10px 25px;
+    font-size: 1em;
+    cursor: pointer;
+}
+
+.tlacitka button:active {
+    transform: scale(0.97);
+}
+
+#addLinkButton, #jirik-manual-opener-btn {
+    width: 200px;
+    height: 50px;
+}
+
+#clearAllLinksButton {
+    width: 400px;
+    height: 50px;
+}
+
+/* VYHLEDÁVACÍ PANEL */
+.search-container {
+    background: rgba(10, 20, 45, 0.92);
+     
+    border: 2px solid rgba(0, 255, 255, 0.6);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+
+
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.search-wrapper label {
+    color: #00ffff;
+    font-size: 1.1em;
+    font-weight: bold;
+    min-width: 150px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 255, 255, 0.4);
+}
+
+#searchInput {
+    flex: 1;
+    padding: 12px 15px;
+    border: 1px solid rgba(0, 255, 255, 0.5);
+    border-radius: 10px;
+    background: rgba(10, 20, 50, 0.6);
+    color: #00ffff;
+    font-family: 'Courier New', monospace;
+    font-size: 1em;
+}
+
+#searchInput:focus {
+    outline: none;
+    border-color: #00ffff;
+    background: rgba(10, 20, 50, 0.8);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+#searchInput::placeholder {
+    color: rgba(0, 255, 255, 0.4);
+}
+
+#clearSearchButton {
+    background: rgba(180, 50, 50, 0.6);
+    color: #fff;
+    border: 1px solid rgba(255, 100, 100, 0.5);
+    padding: 10px 18px;
+    border-radius: 50%;
+    font-size: 1.2em;
+    cursor: pointer;
+    min-width: 45px;
+    height: 45px;
+}
+
+
+
+#clearSearchButton:active {
+    transform: scale(0.95);
+}
+
+.search-results {
+    text-align: center;
+    color: #00ffff;
+    font-size: 1em;
+    font-weight: bold;
+    padding: 10px;
+    background: rgba(0, 255, 255, 0.1);
+    border-radius: 8px;
+    letter-spacing: 1px;
+}
+
+#searchCount {
+    color: #ffaa00;
+    font-size: 1.2em;
+    text-shadow: 0 0 8px rgba(255, 170, 0, 0.6);
+}
+
+.highlight {
+    background: rgba(255, 255, 0, 0.3);
+    color: #ffff00;
+    font-weight: bold;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+tr.hidden-by-search {
+    display: none;
+}
+
+/* STRÁNKOVÁNÍ */
+.pages-navigation-section {
+    background: rgba(10, 20, 45, 0.92);
+     
+    border: 2px solid rgba(0, 255, 255, 0.6);
+    border-radius: 20px;
+    padding: 25px;
+    margin-bottom: 30px;
+}
+
+
+
+.pages-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.pages-header h2 {
+    color: #00ffff;
+    font-size: 1.5em;
+    margin: 0;
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.95), 0 0 10px rgba(0, 255, 255, 0.5);
+}
+
+.add-page-form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+#newPageName {
+    padding: 10px 15px;
+    border: 1px solid rgba(0, 255, 255, 0.5);
+    border-radius: 10px;
+    background: rgba(10, 20, 50, 0.6);
+    color: #00ffff;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95em;
+    min-width: 200px;
+}
+
+#newPageName:focus {
+    outline: none;
+    border-color: #00ffff;
+    background: rgba(10, 20, 50, 0.8);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+#newPageName::placeholder {
+    color: rgba(0, 255, 255, 0.4);
+}
+
+#addPageButton {
+    background: linear-gradient(135deg, #007b7b, #00b8b8);
+    color: #fff;
+    border: 1px solid rgba(0, 255, 255, 0.5);
+    padding: 10px 20px;
+    border-radius: 20px;
+    font-size: 0.95em;
+    font-weight: bold;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+
+
+#addPageButton:active {
+    transform: scale(0.97);
+}
+
+.page-tabs-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 15px;
+    min-height: 60px;
+    align-items: center;
+}
+
+.page-tab-loading {
+    width: 100%;
+    text-align: center;
+    color: rgba(0, 255, 255, 0.6);
+    font-size: 1em;
+    padding: 10px;
+}
+
+.no-pages {
+    width: 100%;
+    text-align: center;
+    color: rgba(255, 170, 0, 0.7);
+    font-size: 1.1em;
+    padding: 15px;
+    font-style: italic;
+}
+
+.page-tab {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(30, 50, 80, 0.6);
+    border: 2px solid rgba(0, 255, 255, 0.3);
+    border-radius: 15px;
+    padding: 12px 20px;
+    cursor: pointer;
+    position: relative;
+}
+
+
+
+.page-tab.active {
+    background: linear-gradient(135deg, rgba(0, 150, 150, 0.8), rgba(0, 100, 100, 0.8));
+    border-color: rgba(0, 255, 255, 0.9);
+}
+
+.page-tab.active .tab-name {
+    color: #ffffff;
+    font-weight: bold;
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
+}
+
+.tab-name {
+    color: #00ffff;
+    font-size: 1em;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.tab-delete {
+    background: rgba(180, 50, 50, 0.6);
+    color: #fff;
+    border: 1px solid rgba(255, 100, 100, 0.5);
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 0.9em;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+.tab-delete:active {
+    transform: scale(0.95);
+}
+
+/* ========================================
+   📱 MEDIA QUERIES - NOTEBOOK & INFINIX
+   ======================================== */
+
+@media (max-width: 768px) {
+    h1 {
+        font-size: 2em;
+    }
+
+    th, td {
+        padding: 10px 8px;
+        font-size: 0.9em;
+    }
+
+    .action-buttons button {
+        padding: 4px 8px;
+        font-size: 0.9em;
+    }
+
+    .form-container {
+        padding: 20px;
+    }
+
+    .tlacitka {
+        flex-direction: column;
+    }
+
+    .tlacitka button {
+        width: 100%;
+    }
+
+    .search-wrapper {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-wrapper label {
+        min-width: auto;
+    }
+    
+    #clearSearchButton {
+        width: 100%;
+        border-radius: 10px;
+    }
+
+    .pages-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .pages-header h2 {
+        text-align: center;
+        font-size: 1.3em;
+    }
+    
+    .add-page-form {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    #newPageName {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    #addPageButton {
+        width: 100%;
+    }
+    
+    .page-tabs-container {
+        justify-content: center;
+    }
+    
+    .page-tab {
+        flex: 1 1 calc(50% - 10px);
+        min-width: 140px;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 600px) {
+    .tlacitka {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 15px;
+        height: auto;
+        margin: 20px auto;
+    }
+
+    .tlacitka button {
+        width: 100%;
+        padding: 12px 15px;
+        font-size: 0.9em;
+    }
+
+    #addLinkButton, 
+    #jirik-manual-opener-btn,
+    #clearAllLinksButton {
+        width: 100%;
+        height: auto;
+    }
+    
+    #clearAllLinksButton {
+        margin-top: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5em;
+    }
+
+    .page-container {
+        padding: 20px 10px;
+    }
+
+    .form-container {
+        padding: 15px;
+        gap: 15px;
+    }
+
+    th:nth-child(1), td:nth-child(1) { 
+        width: 10%; 
+        min-width: 40px;
+        font-size: 0.85em;
+    }
+    
+    th:nth-child(2), td:nth-child(2) { 
+        width: 30%; 
+        min-width: 100px;
+        max-width: 150px;
+        word-break: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        font-size: 0.85em;
+    }
+    
+    th:nth-child(3), td:nth-child(3) { 
+        width: 17%; 
+        min-width: 50px;
+        font-size: 0.85em;
+    }
+    
+    th:nth-child(4), td:nth-child(4) { 
+        width: 35%; 
+        min-width: 110px;
+    }
+
+    .action-buttons button {
+        padding: 2px 3px;
+        font-size: 0.7em;
+    }
+
+    .modal-content {
+        width: 95%;
+        padding: 25px;
+    }
+
+    .pages-navigation-section {
+        padding: 15px;
+    }
+    
+    .pages-header h2 {
+        font-size: 1.1em;
+    }
+    
+    .page-tab {
+        flex: 1 1 100%;
+        padding: 10px 15px;
+    }
+    
+    .tab-name {
+        font-size: 0.9em;
+    }
+    
+    .tab-delete {
+        width: 24px;
+        height: 24px;
+        font-size: 0.8em;
+    }
+}
+
+/* FULLSCREEN BUTTON - PRAVÝ HORNÍ ROH */
+.fullscreen-btn {
+    position: fixed;
+    top: 20px;        /* ⬅️ ZMĚNA: bottom → top */
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, rgba(0, 150, 150, 0.8), rgba(0, 100, 100, 0.9));
+    border: 2px solid rgba(0, 255, 255, 0.8);
+    border-radius: 50%;
+    color: #00ffff;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.4);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fullscreen-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 255, 255, 0.6);
+    background: linear-gradient(135deg, rgba(0, 180, 180, 0.9), rgba(0, 120, 120, 1));
+}
+
+.fullscreen-btn:active {
+    transform: scale(0.95);
+}
+
+/* Mobil - menší tlačítko */
+@media (max-width: 768px) {
+    .fullscreen-btn {
+        width: 50px;
+        height: 50px;
+        top: 15px;        /* ⬅️ ZMĚNA: bottom → top */
+        right: 15px;
+        font-size: 24px;
+    }
+}
+
+
+@media (max-width: 768px) {
+    *, *::before, *::after {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+    }
+
+    /* Aby byly panely čitelné i bez rozmazání, dáme jim tmavé pozadí */
+    .form-container, 
+    table, 
+    .search-container,
+    .pages-navigation-section,
+    .modal-content,
+    .tlacitka {
+        background: rgba(10, 20, 45, 0.95) !important; /* Téměř neprůhledná modrá */
+    }
+}
+
+
+
+ 

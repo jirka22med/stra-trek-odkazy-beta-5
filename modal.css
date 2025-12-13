@@ -1,0 +1,199 @@
+/* MODAL CSS - KOMPLETNÍ NOVÝ DESIGN */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0);
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.modal-overlay.active {
+    background-color: rgba(0, 0, 0, 0.8);
+    opacity: 1;
+    visibility: visible;
+    pointer-events: all;
+}
+
+.modal-content {
+    background: rgba(15, 35, 70, 0.95);
+    padding: 40px;
+    border-radius: 20px;
+    border: 2px solid rgba(0, 255, 255, 0.4);
+    width: 90%;
+    max-width: 500px;
+    color: #00ffff;
+    text-align: center;
+    position: relative;
+    z-index: 1000;
+}
+
+.modal-content h2 {
+    color: #00ffff;
+    margin-bottom: 25px;
+    font-size: 1.8em;
+    letter-spacing: 2px;
+    font-weight: bold;
+}
+
+.modal-content label {
+    display: block;
+    margin-bottom: 8px;
+    margin-top: 15px;
+    font-weight: bold;
+    color: #00ffff;
+    text-align: left;
+    font-size: 1em;
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="url"],
+.modal-content input[type="hidden"] {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(0, 255, 255, 0.5);
+    border-radius: 8px;
+    background: rgba(10, 20, 50, 0.6);
+    color: #00ffff;
+    font-size: 1em;
+    font-family: 'Courier New', monospace;
+}
+
+.modal-content input[type="text"]:focus,
+.modal-content input[type="url"]:focus {
+    outline: none;
+    border-color: #00ffff;
+    background: rgba(10, 20, 50, 0.8);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+    justify-content: center;
+}
+
+.modal-buttons button {
+    flex: 1;
+    padding: 12px 25px;
+    border: 1px solid rgba(0, 255, 255, 0.5);
+    border-radius: 20px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#saveEditButton {
+    background: rgba(0, 150, 100, 0.6);
+    color: #fff;
+    border-color: rgba(0, 255, 150, 0.5);
+}
+
+#saveEditButton:hover {
+    background: rgba(0, 180, 120, 0.8);
+    border-color: rgba(0, 255, 150, 0.8);
+}
+
+#saveEditButton:active {
+    transform: scale(0.98);
+}
+
+#cancelEditButton {
+    background: rgba(150, 50, 50, 0.6);
+    color: #fff;
+    border-color: rgba(255, 100, 100, 0.5);
+}
+
+#cancelEditButton:hover {
+    background: rgba(180, 80, 80, 0.8);
+    border-color: rgba(255, 150, 150, 0.8);
+}
+
+#cancelEditButton:active {
+    transform: scale(0.98);
+}
+
+/* Responzivita */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 90%;
+        padding: 30px;
+    }
+    
+    .modal-content h2 {
+        font-size: 1.5em;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    .modal-content h2 {
+        font-size: 1.3em;
+    }
+    
+    .modal-buttons {
+        flex-direction: column;
+    }
+}
+
+/* Přidej toto do modal.css pro stylování výběru stránky */
+
+.modal-content select {
+    width: 100%;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid rgba(0, 255, 255, 0.5);
+    border-radius: 8px;
+    background: rgba(10, 20, 50, 0.8); /* Tmavší pozadí */
+    color: #00ffff;
+    font-size: 1em;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    appearance: none; /* Odstraní defaultní šipku prohlížeče */
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2300ffff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+    background-repeat: no-repeat;
+    background-position: right .7em top 50%;
+    background-size: .65em auto;
+}
+
+.modal-content select:focus {
+    outline: none;
+    border-color: #00ffff;
+    background-color: rgba(15, 30, 60, 1);
+    box-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.modal-content select option {
+    background-color: #0a0e27;
+    color: #00ffff;
+}
+
+/* ============================================================
+   🚀 PERFORMANCE FIX PRO MODAL (Mobil)
+   Vypne průhlednost modálního okna pro čistší vzhled a výkon
+   ============================================================ */
+@media (max-width: 768px) {
+    .modal-content {
+        /* Pevná barva bez průhlednosti (odpovídá tvé modré) */
+        background: #0f2346 !important; 
+        /* Vypnutí stínů pro jistotu */
+        box-shadow: none !important;
+        border: 2px solid #00ffff !important;
+    }
+}

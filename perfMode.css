@@ -1,0 +1,304 @@
+ /* ========================================
+           KOMPAKTNÍ INDIKÁTOR (vpravo dole)
+           ======================================== */
+        #perfMode {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 20, 40, 0.95);
+             
+            color: #00ff00;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 0.85em;
+            font-family: 'Courier New', monospace;
+            z-index: 9998;
+            border: 1px solid #00ff00;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+
+        #perfMode:hover {
+            background: rgba(0, 40, 80, 0.95);
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+            transform: scale(1.05);
+        }
+
+        #perfMode:active {
+            transform: scale(0.98);
+        }
+
+        #perfMode.warning {
+            border-color: #ffaa00;
+            color: #ffaa00;
+            box-shadow: 0 0 10px rgba(255, 170, 0, 0.3);
+        }
+
+        #perfMode.error {
+            border-color: #ff3333;
+            color: #ff3333;
+            box-shadow: 0 0 10px rgba(255, 51, 51, 0.3);
+        }
+
+        /* ========================================
+           MODAL OVERLAY
+           ======================================== */
+        #perfDashboardModal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+             
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #perfDashboardModal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* ========================================
+           DASHBOARD PANEL
+           ======================================== */
+        .perf-dashboard {
+            background: linear-gradient(135deg, rgba(10, 25, 50, 0.98), rgba(15, 35, 65, 0.98));
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 25px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+            font-family: 'Courier New', monospace;
+            color: #00ffff;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+
+        #perfDashboardModal.active .perf-dashboard {
+            transform: scale(1);
+        }
+
+        .perf-dashboard h2 {
+            margin: 0 0 20px 0;
+            color: #FF7800;
+            text-align: center;
+            font-size: 1.8em;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(255, 120, 0, 0.6);
+        }
+
+        .perf-metric-group {
+            background: rgba(0, 20, 40, 0.6);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .perf-metric-group h3 {
+            margin: 0 0 10px 0;
+            color: #00ffff;
+            font-size: 1.2em;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+            padding-bottom: 5px;
+        }
+
+        .perf-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            font-size: 0.95em;
+        }
+
+        .perf-metric-label {
+            color: #88ddff;
+            font-weight: bold;
+        }
+
+        .perf-metric-value {
+            color: #00ff00;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .perf-metric-value.warning {
+            color: #ffaa00;
+        }
+
+        .perf-metric-value.error {
+            color: #ff3333;
+        }
+
+        /* PROGRESS BAR */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #00aa00);
+            transition: width 0.3s ease;
+        }
+
+        .progress-fill.warning {
+            background: linear-gradient(90deg, #ffaa00, #ff8800);
+        }
+
+        .progress-fill.error {
+            background: linear-gradient(90deg, #ff3333, #cc0000);
+        }
+
+        /* MINI GRAF (Sparkline) */
+        .sparkline {
+            display: flex;
+            align-items: flex-end;
+            height: 40px;
+            gap: 2px;
+            margin-top: 8px;
+        }
+
+        .sparkline-bar {
+            flex: 1;
+            background: linear-gradient(to top, #00ff00, #00aa00);
+            min-width: 3px;
+            border-radius: 2px 2px 0 0;
+            transition: height 0.2s ease;
+        }
+
+        .sparkline-bar.warning {
+            background: linear-gradient(to top, #ffaa00, #ff8800);
+        }
+
+        .sparkline-bar.error {
+            background: linear-gradient(to top, #ff3333, #cc0000);
+        }
+
+        /* TLAČÍTKA */
+        .perf-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .perf-btn {
+            background: rgba(0, 150, 150, 0.6);
+            color: #fff;
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Courier New', monospace;
+        }
+
+        .perf-btn:hover {
+            background: rgba(0, 180, 180, 0.8);
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+        }
+
+        .perf-btn:active {
+            transform: scale(0.98);
+        }
+
+        .perf-btn.danger {
+            background: rgba(180, 50, 50, 0.6);
+            border-color: rgba(255, 100, 100, 0.5);
+        }
+
+        .perf-btn.danger:hover {
+            background: rgba(200, 70, 70, 0.8);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .perf-dashboard {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .perf-dashboard h2 {
+                font-size: 1.4em;
+            }
+
+            .perf-metric {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            #perfMode {
+                font-size: 0.75em;
+                padding: 6px 10px;
+            }
+        }
+
+        /* SCROLLBAR STYLING */
+        .perf-dashboard::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .perf-dashboard::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        .perf-dashboard::-webkit-scrollbar-thumb {
+            background: rgba(0, 255, 255, 0.4);
+            border-radius: 10px;
+        }
+
+        .perf-dashboard::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 255, 255, 0.6);
+        }
+
+
+/* ============================================================
+   🚀 PERFORMANCE ULTRA-FIX PRO MONITOR (perfMode.css)
+   Vypne rozmazání samotného dashboardu na mobilech
+   ============================================================ */
+@media (max-width: 768px) {
+    /* 1. Malý indikátor vpravo dole */
+    #perfMode {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+        /* Plná tmavá barva místo poloprůhledné */
+        background: rgba(0, 20, 40, 1) !important;
+        box-shadow: 0 0 5px rgba(0, 255, 0, 0.5) !important;
+    }
+
+    /* 2. Pozadí celého modálního okna (když otevřeš dashboard) */
+    #perfDashboardModal {
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+        /* Tmavší pozadí pro lepší kontrast */
+        background: rgba(0, 0, 0, 0.95) !important;
+    }
+
+    /* 3. Samotný panel dashboardu */
+    .perf-dashboard {
+        /* Ujistíme se, že je neprůhledný */
+        background: #0a1932 !important; 
+        border: 1px solid #00ffff !important;
+    }
+}
