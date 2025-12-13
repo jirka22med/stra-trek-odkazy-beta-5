@@ -133,7 +133,7 @@ h1 {
     font-size: 3em;
     margin-bottom: 5px;
     letter-spacing: 3px;
-    margin-top: -50px;
+    margin-top: -70px;
     font-weight: 900;
 }
 
@@ -586,6 +586,8 @@ tr.hidden-by-search {
     border-radius: 20px;
     padding: 25px;
     margin-bottom: 30px;
+    position: relative; /* Aktivuje magii pro 'top' */
+        top: 35px;          /* O tolik se celý blok posune dolů */
 }
 
 
@@ -781,6 +783,7 @@ tr.hidden-by-search {
     }
 
     .pages-header {
+         
         flex-direction: column;
         align-items: stretch;
     }
@@ -844,11 +847,13 @@ tr.hidden-by-search {
 
 @media (max-width: 480px) {
     h1 {
-        font-size: 1.5em;
+        font-size: 1.0em;
+        margin-top: -38px;
     }
 
     .page-container {
         padding: 20px 10px;
+        
     }
 
     .form-container {
@@ -894,6 +899,8 @@ tr.hidden-by-search {
     }
 
     .pages-navigation-section {
+        position: relative; /* Aktivuje magii pro 'top' */
+        top: 30px;          /* O tolik se celý blok posune dolů */
         padding: 15px;
     }
     
@@ -918,9 +925,10 @@ tr.hidden-by-search {
 }
 
 /* FULLSCREEN BUTTON - PRAVÝ HORNÍ ROH */
+/* FULLSCREEN BUTTON - PRAVÝ HORNÍ ROH */
 .fullscreen-btn {
-    position: fixed;
-    top: 20px;        /* ⬅️ ZMĚNA: bottom → top */
+    position: absolute;  /* ⬅️ ZMĚNA: Teď odjede pryč při scrollování */
+    top: 20px;           /* Desktop pozice */
     right: 20px;
     width: 60px;
     height: 60px;
@@ -948,14 +956,17 @@ tr.hidden-by-search {
     transform: scale(0.95);
 }
 
-/* Mobil - menší tlačítko */
+ 
+/* Mobil - menší tlačítko a posun */
 @media (max-width: 768px) {
     .fullscreen-btn {
-        width: 50px;
-        height: 50px;
-        top: 15px;        /* ⬅️ ZMĚNA: bottom → top */
-        right: 15px;
-        font-size: 24px;
+        width: 30px;
+        height: 30px;
+        top: 50px;        /* ⬅️ Tvé nastavení pro úsporu místa */
+        right: 25px;
+        font-size: 15px;
+    }
+}
     }
 }
 
