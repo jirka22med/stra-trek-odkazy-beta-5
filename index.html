@@ -10,18 +10,24 @@
     <link rel="stylesheet" href="modal.css">
     <!-- V <head> -->
 <link rel="stylesheet" href="scrollbar.css">
+ <link rel="stylesheet" href="browser-status.css">   
 </head>
 <body>
 <!-- Přidej PŘED </body> -->
 <button id="fullscreen-button" class="fullscreen-btn" title="Celoobrazovkový režim">
     ⛶
 </button>
+    <div id="browser-status" class="ukazatel">
+    <span style="color: #ff00ff;"> </span> 
+    <strong> </strong> 
+    <span id="browser-info" style="color: #ffff00; font-weight: bold;"></span>
+</div>
 <div class="background-image-container">
    <img src="">
 </div>
     
     <div class="page-container">
-        <h1>🔡 Hvězdná Databáze Odkazů</h1>
+        <h1>Hvězdná Databáze Odkazů</h1>
 
          
         
@@ -236,19 +242,7 @@
         </div>
     </div>
     
-    <div id="browser-status" style="position: fixed; bottom: 15px; left: 15px; 
-            background: linear-gradient(135deg, rgba(0,20,40,0.95), rgba(10,0,30,0.95)); 
-            color: #00ffff; padding: 12px 20px; border-radius: 10px; z-index: 9999;
-            border: 2px solid #00ffff; 
-            box-shadow: 0 0 25px rgba(0, 255, 255, 0.4), inset 0 0 15px rgba(0, 255, 255, 0.1);
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;">
-    <span style="color: #ff00ff;"> </span> 
-    <strong> </strong> 
-    <span id="browser-info" style="color: #ffff00; font-weight: bold;"></span>
-</div>
+     
     <!-- ═══════════════════════════════════════════════════════════════ -->
 <!-- FIREBASE SDK - Základní knihovny (BEZ defer - musí být první!) -->
 <!-- ═══════════════════════════════════════════════════════════════ -->
@@ -307,11 +301,3 @@ document.addEventListener('DOMContentLoaded', function() {
 </body>
 
 </html>
-
-
-
-
-
-
-
-
