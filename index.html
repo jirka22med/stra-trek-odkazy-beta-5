@@ -133,130 +133,186 @@
             </div>
         </div>
     </div>
-      <!-- KOMPAKTNÍ INDIKÁTOR - JEDINÝ OVLÁDACÍ PRVEK -->
-    <div id="perfMode" onclick="togglePerfDashboard()" title="Klikni pro otevření Performance Dashboard">
-        ⚡ Načítání...
-    </div>
+   <!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PERFORMANCE DASHBOARD v3.1 - COMPLETE HTML STRUCTURE          -->
+<!-- Vložit do index.html PŘED </body>                              -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
 
-    <!-- MODAL S DASHBOARDEM -->
-    <div id="perfDashboardModal">
-        <div class="perf-dashboard">
-            <h2>⚡ PERFORMANCE DASHBOARD</h2>
-
-            <!-- RENDERING METRIKY -->
-            <div class="perf-metric-group">
-                <h3>🎨 Rendering</h3>
-                <div class="perf-metric">
-                    <span class="perf-metric-label">FPS (snímků/s):</span>
-                    <span class="perf-metric-value" id="dash-fps">-- FPS</span>
-                </div>
-                <div class="sparkline" id="fps-sparkline"></div>
-                
-                <div class="perf-metric">
-                    <span class="perf-metric-label">Last Render Time:</span>
-                    <span class="perf-metric-value" id="dash-render-time">-- ms</span>
-                </div>
-                <div class="perf-metric">
-                    <span class="perf-metric-label">Avg Render Time:</span>
-                    <span class="perf-metric-value" id="dash-avg-render">-- ms</span>
-                </div>
-            </div>
-
-            <!-- PAMĚŤ -->
-            <div class="perf-metric-group">
-                <h3>💾 Memory Usage</h3>
-                <div class="perf-metric">
-                    <span class="perf-metric-label">Used Memory:</span>
-                    <span class="perf-metric-value" id="dash-memory">-- MB</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="memory-progress" style="width: 0%"></div>
-                </div>
-                <div class="perf-metric" style="margin-top: 10px;">
-                    <span class="perf-metric-label">Memory Limit:</span>
-                    <span class="perf-metric-value" id="dash-memory-limit">-- MB</span>
-                </div>
-            </div>
-
-            <!-- FIREBASE & CACHE -->
-            <div class="perf-metric-group">
-                <h3>🔥 Firebase & Cache</h3>
-                <div class="perf-metric">
-                    <span class="perf-metric-label">Firebase Queries:</span>
-                    <span class="perf-metric-value" id="dash-queries">0</span>
-                </div>
-                <div class="perf-metric">
-                    <span class="perf-metric-label">Cache Hit Rate:</span>
-                    <span class="perf-metric-value" id="dash-cache-rate">--%</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="cache-progress" style="width: 0%"></div>
-                </div>
-                <div class="perf-metric" style="margin-top: 10px;">
-                    <span class="perf-metric-label">Links in Cache:</span>
-                    <span class="perf-metric-value" id="dash-links-cached">0</span>
-                </div>
-                <div class="perf-metric">
-                    <span class="perf-metric-label">Pages in Cache:</span>
-                    <span class="perf-metric-value" id="dash-pages-cached">0</span>
-                </div>
-            </div>
-
-            <!-- NETWORK -->
-            <div class="perf-metric-group">
-                <h3>🌐 Network</h3>
-                <div class="perf-metric">
-                    <span class="perf-metric-label">Avg Latency:</span>
-                    <span class="perf-metric-value" id="dash-latency">-- ms</span>
-                </div>
-                <div class="perf-metric">
-                    <span class="perf-metric-label">Connection:</span>
-                    <span class="perf-metric-value" id="dash-connection">--</span>
-                </div>
-            </div>
-
-            <!-- SYSTEM INFO -->
-            <div class="perf-metric-group">
-                <h3>📱 System Info</h3>
-                <div class="perf-metric">
-                    <span class="perf-metric-label">Device:</span>
-                    <span class="perf-metric-value" id="dash-device">--</span>
-                </div>
-                <div class="perf-metric">
-                    <span class="perf-metric-label">Screen:</span>
-                    <span class="perf-metric-value" id="dash-screen">--</span>
-                </div>
-                <div class="perf-metric">
-                    <span class="perf-metric-label">Uptime:</span>
-                    <span class="perf-metric-value" id="dash-uptime">--</span>
-                </div>
-            </div>
-<div class="perf-metric">
-    <span class="perf-metric-label">Stav baterie:</span>
-    <span class="perf-metric-value" id="dash-battery">--%</span>
+<!-- KOMPAKTNÍ INDIKÁTOR - JEDINÝ OVLÁDACÍ PRVEK -->
+<div id="perfMode" onclick="togglePerfDashboard()" title="Klikni pro otevření Performance Dashboard">
+    ⚡ Načítání...
 </div>
 
-<div class="perf-metric">
-    <span class="perf-metric-label">Cache vyprší za:</span>
-    <span class="perf-metric-value" id="dash-cache-ttl">--s</span>
-</div>
+<!-- MODAL S DASHBOARDEM -->
+<div id="perfDashboardModal">
+    <div class="perf-dashboard">
+        <h2>⚡ PERFORMANCE DASHBOARD v3.1</h2>
 
-<div class="perf-metric">
-    <span class="perf-metric-label">RTT (Network):</span>
-    <span class="perf-metric-value" id="dash-rtt">-- ms</span>
-</div>
-
- 
-            <!-- AKCE -->
-            <div class="perf-actions">
-                <button class="perf-btn" onclick="exportPerfReport()">📥 Export TXT</button>
-                <button class="perf-btn" onclick="exportPerfJson()">💾 Export JSON</button>
-                <button class="perf-btn" onclick="forceRefreshCache()">🔄 Refresh Cache</button>
-                <button class="perf-btn" onclick="clearPerfStats()">📊 Clear Stats</button>
-                <button class="perf-btn danger" onclick="togglePerfDashboard()">❌ Zavřít</button>
+        <!-- RENDERING METRIKY -->
+        <div class="perf-metric-group">
+            <h3>🎨 Rendering & FPS</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">FPS (snímků/s):</span>
+                <span class="perf-metric-value" id="dash-fps">-- FPS</span>
+            </div>
+            <div class="sparkline" id="fps-sparkline"></div>
+            
+            <div class="perf-metric">
+                <span class="perf-metric-label">Last Render Time:</span>
+                <span class="perf-metric-value" id="dash-render-time">-- ms</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Avg Render Time:</span>
+                <span class="perf-metric-value" id="dash-avg-render">-- ms</span>
             </div>
         </div>
+
+        <!-- PAMĚŤ -->
+        <div class="perf-metric-group">
+            <h3>💾 Memory Usage (RAM)</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Used Memory:</span>
+                <span class="perf-metric-value" id="dash-memory">-- MB</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="memory-progress" style="width: 0%"></div>
+            </div>
+            <div class="perf-metric" style="margin-top: 10px;">
+                <span class="perf-metric-label">Memory Limit:</span>
+                <span class="perf-metric-value" id="dash-memory-limit">-- MB</span>
+            </div>
+        </div>
+
+        <!-- FIREBASE & CACHE -->
+        <div class="perf-metric-group">
+            <h3>🔥 Firebase & Cache</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Firebase Queries:</span>
+                <span class="perf-metric-value" id="dash-queries">0</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Cache Hit Rate:</span>
+                <span class="perf-metric-value" id="dash-cache-rate">--%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="cache-progress" style="width: 0%"></div>
+            </div>
+            <div class="perf-metric" style="margin-top: 10px;">
+                <span class="perf-metric-label">Links in Cache:</span>
+                <span class="perf-metric-value" id="dash-links-cached">0</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Pages in Cache:</span>
+                <span class="perf-metric-value" id="dash-pages-cached">0</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Cache TTL:</span>
+                <span class="perf-metric-value" id="dash-cache-ttl">--s</span>
+            </div>
+        </div>
+
+        <!-- NETWORK -->
+        <div class="perf-metric-group">
+            <h3>🌐 Network</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Avg Latency:</span>
+                <span class="perf-metric-value" id="dash-latency">-- ms</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Network RTT:</span>
+                <span class="perf-metric-value" id="dash-rtt">-- ms</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Connection:</span>
+                <span class="perf-metric-value" id="dash-connection">--</span>
+            </div>
+        </div>
+
+        <!-- SYSTEM INFO -->
+        <div class="perf-metric-group">
+            <h3>📱 System Info</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Device:</span>
+                <span class="perf-metric-value" id="dash-device">--</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Battery:</span>
+                <span class="perf-metric-value" id="dash-battery">-- %</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Screen:</span>
+                <span class="perf-metric-value" id="dash-screen">--</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Uptime:</span>
+                <span class="perf-metric-value" id="dash-uptime">--</span>
+            </div>
+        </div>
+
+        <!-- 🆕 PAGE SWITCHING STATS -->
+        <div class="perf-metric-group">
+            <h3>📊 Page Switch Performance</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Total Switches:</span>
+                <span class="perf-metric-value" id="dash-page-switches">0x</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Avg Time:</span>
+                <span class="perf-metric-value" id="dash-page-avg">-- ms</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Fastest:</span>
+                <span class="perf-metric-value" id="dash-page-fastest">-- ms</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Slowest:</span>
+                <span class="perf-metric-value" id="dash-page-slowest">-- ms</span>
+            </div>
+        </div>
+
+        <!-- 🆕 LINK OPERATIONS -->
+        <div class="perf-metric-group">
+            <h3>📝 Link Operations</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Added:</span>
+                <span class="perf-metric-value" id="dash-links-added">0</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Deleted:</span>
+                <span class="perf-metric-value" id="dash-links-deleted">0</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Edited:</span>
+                <span class="perf-metric-value" id="dash-links-edited">0</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Moved:</span>
+                <span class="perf-metric-value" id="dash-links-moved">0</span>
+            </div>
+        </div>
+
+        <!-- 🆕 SYSTEM INCIDENTS -->
+        <div class="perf-metric-group">
+            <h3>⚠️ System Incidents</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Long Tasks (>50ms):</span>
+                <span class="perf-metric-value" id="dash-long-tasks">0</span>
+            </div>
+            <div id="dash-long-tasks-list" style="font-size: 0.85em; color: #ffaa00; margin-top: 8px; max-height: 100px; overflow-y: auto;">
+                <!-- Dynamicky generovaný seznam -->
+            </div>
+        </div>
+
+        <!-- AKCE -->
+        <div class="perf-actions">
+            <button class="perf-btn" onclick="exportPerfReport()">📥 Export TXT</button>
+            <button class="perf-btn" onclick="exportPerfJson()">📦 Export JSON</button>
+            <button class="perf-btn" onclick="forceRefreshCache()">🔄 Refresh Cache</button>
+            <button class="perf-btn" onclick="clearPerfStats()">📊 Clear Stats</button>
+            <button class="perf-btn danger" onclick="togglePerfDashboard()">❌ Zavřít</button>
+        </div>
     </div>
+</div>
     
      
     <!-- ═══════════════════════════════════════════════════════════════ -->
