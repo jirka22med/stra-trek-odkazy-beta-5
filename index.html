@@ -231,10 +231,26 @@
                     <span class="perf-metric-value" id="dash-uptime">--</span>
                 </div>
             </div>
+<div class="perf-metric">
+    <span class="perf-metric-label">Stav baterie:</span>
+    <span class="perf-metric-value" id="dash-battery">--%</span>
+</div>
 
+<div class="perf-metric">
+    <span class="perf-metric-label">Cache vyprší za:</span>
+    <span class="perf-metric-value" id="dash-cache-ttl">--s</span>
+</div>
+
+<div class="perf-metric">
+    <span class="perf-metric-label">RTT (Network):</span>
+    <span class="perf-metric-value" id="dash-rtt">-- ms</span>
+</div>
+
+ 
             <!-- AKCE -->
             <div class="perf-actions">
                 <button class="perf-btn" onclick="exportPerfReport()">📥 Export TXT</button>
+                <button class="perf-btn" onclick="exportPerfJson()">💾 Export JSON</button>
                 <button class="perf-btn" onclick="forceRefreshCache()">🔄 Refresh Cache</button>
                 <button class="perf-btn" onclick="clearPerfStats()">📊 Clear Stats</button>
                 <button class="perf-btn danger" onclick="togglePerfDashboard()">❌ Zavřít</button>
