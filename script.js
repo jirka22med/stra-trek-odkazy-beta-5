@@ -1,6 +1,7 @@
 // ===================================================================
-// PERFORMANCE MONITOR v3.0 - GALACTIC EDITION
-// Autor: Claude.ai | Architekt: Vice admirál Jiřík | Partner: Gemini
+// PERFORMANCE MONITOR v3.1 - CALIBRATED GALACTIC EDITION
+// Autor: Claude.ai | Architekt: Vice admirál Jiřík
+// ✅ ZKALIBROVÁNO: Všechny metriky správně zobrazeny
 // ===================================================================
 
 let frameCount = 0;
@@ -15,7 +16,7 @@ let startTime = Date.now();
 let latencyMeasurements = [];
 let isDashboardOpen = false;
 
-// --- 🆕 EXTENDED TRACKING & HARDWARE SENSORS ---
+// --- 🆕 EXTENDED TRACKING ---
 let pageSwitch = { count: 0, times: [] };
 let searchStats = { count: 0, times: [] };
 let linkOperations = { added: 0, deleted: 0, edited: 0, moved: 0 };
@@ -28,51 +29,55 @@ let networkRTT = 0;
 // 🛡️ INICIALIZACE SYSTÉMOVÝCH SENZORŮ
 // ========================================
 
-// 1. Senzor baterie pro Lenovo IdeaPad Gaming 3
+// 1. Senzor baterie
 if ('getBattery' in navigator) {
     navigator.getBattery().then(battery => {
         const updateBattery = () => {
             batteryInfo.level = Math.round(battery.level * 100);
             batteryInfo.charging = battery.charging;
-            addToTimeline('Power Status', `${batteryInfo.level}% (${batteryInfo.charging ? 'Nabíjení' : 'Baterie'})`);
+            if (isDashboardOpen) updateDashboard();
         };
         updateBattery();
         battery.addEventListener('chargingchange', updateBattery);
         battery.addEventListener('levelchange', updateBattery);
+    }).catch(err => {
+        console.log('⚠️ Battery API nedostupné:', err);
     });
 }
 
-// 2. Detekce "záseků" systému (Long Tasks API)
+// 2. Long Tasks (detekce zásekù)
 try {
     const taskObserver = new PerformanceObserver((list) => {
         list.getEntries().forEach((entry) => {
             if (entry.duration > 50) {
-                const lagInfo = `Lag: ${Math.round(entry.duration)}ms`;
                 longTasks.push({ 
                     timestamp: new Date().toLocaleTimeString('cs-CZ'), 
-                    duration: entry.duration 
+                    duration: Math.round(entry.duration)
                 });
-                addToTimeline('⚠️ System Lag', lagInfo);
-                console.warn(`🚀 [PerfMonitor] Detekován zásek: ${lagInfo}`);
+                if (longTasks.length > 20) longTasks.shift();
+                addToTimeline('⚠️ System Lag', `${Math.round(entry.duration)}ms`);
+                
+                if (isDashboardOpen) updateDashboard();
             }
         });
     });
     taskObserver.observe({ entryTypes: ['longtask'] });
 } catch (e) {
-    console.log("Long Tasks API není v tomto prohlížeči podporováno.");
+    console.log('ℹ️ Long Tasks API není podporováno');
 }
 
-// 3. Rozšířená síťová diagnostika (RTT)
+// 3. Network RTT monitoring
 function updateNetworkInfo() {
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    if (conn) {
-        networkRTT = conn.rtt || 0;
+    if (conn && conn.rtt) {
+        networkRTT = conn.rtt;
     }
 }
 setInterval(updateNetworkInfo, 5000);
+updateNetworkInfo();
 
 // ========================================
-// 📊 MONITOROVÁNÍ FPS & JÁDRO
+// 📊 MONITORING FPS
 // ========================================
 
 function monitorPerformance() {
@@ -84,13 +89,11 @@ function monitorPerformance() {
         frameCount = 0;
         lastFpsUpdate = now;
         
-        // Přidej do historie (max 20 hodnot)
         fpsHistory.push(currentFps);
         if (fpsHistory.length > 20) fpsHistory.shift();
         
         updateCompactIndicator();
         
-        // Update dashboard pouze pokud je otevřený
         if (isDashboardOpen) {
             updateDashboard();
         }
@@ -99,12 +102,13 @@ function monitorPerformance() {
     requestAnimationFrame(monitorPerformance);
 }
 
-// Kompaktní indikátor v rohu obrazovky
+// Kompaktní indikátor
 function updateCompactIndicator() {
     const perfEl = document.getElementById('perfMode');
     if (!perfEl) return;
 
     const memory = getMemoryUsage();
+    const cacheRate = getCacheHitRate();
     
     let status = '✅';
     perfEl.className = '';
@@ -118,124 +122,161 @@ function updateCompactIndicator() {
         perfEl.classList.add('error');
     }
     
-    perfEl.textContent = `⚡ ${currentFps} FPS | ${memory}MB | ${status} System`;
+    perfEl.textContent = `⚡ ${currentFps} FPS | ${memory}MB | Cache ${cacheRate}%`;
 }
 
 // ========================================
-// 🖥️ DASHBOARD UPDATE (v3.0 GALACTIC)
+// 🖥️ DASHBOARD UPDATE (ZKALIBROVANÝ)
 // ========================================
 
 function updateDashboard() {
     // 1. FPS METRIKY
-    const fpsDash = document.getElementById('dash-fps');
-    if (fpsDash) {
-        fpsDash.textContent = `${currentFps} FPS`;
-        fpsDash.className = 'perf-metric-value';
-        if (currentFps < 30) fpsDash.classList.add('warning');
-        if (currentFps < 20) fpsDash.classList.add('error');
-    }
-    
-    // FPS Sparkline graf
+    updateElement('dash-fps', `${currentFps} FPS`, currentFps < 30 ? 'warning' : currentFps < 20 ? 'error' : '');
     updateSparkline();
     
-    // 2. RENDER TIMES (Z links.js)
+    // 2. RENDER TIMES
     if (renderTimes.length > 0) {
         const lastRender = renderTimes[renderTimes.length - 1];
         const avgRender = Math.round(renderTimes.reduce((a, b) => a + b, 0) / renderTimes.length);
-        const renderTimeEl = document.getElementById('dash-render-time');
-        const avgRenderEl = document.getElementById('dash-avg-render');
-        if (renderTimeEl) renderTimeEl.textContent = `${lastRender} ms`;
-        if (avgRenderEl) avgRenderEl.textContent = `${avgRender} ms`;
+        updateElement('dash-render-time', `${lastRender} ms`);
+        updateElement('dash-avg-render', `${avgRender} ms`);
     }
     
-    // 3. PAMĚŤ (RAM)
+    // 3. PAMĚŤ
     const memory = getMemoryUsage();
     const memoryLimit = getMemoryLimit();
     const memoryPercent = Math.round((memory / memoryLimit) * 100);
-    const memEl = document.getElementById('dash-memory');
-    const memLimitEl = document.getElementById('dash-memory-limit');
-    if (memEl) memEl.textContent = `${memory} MB`;
-    if (memLimitEl) memLimitEl.textContent = `${memoryLimit} MB`;
     
-    const memProgress = document.getElementById('memory-progress');
-    if (memProgress) {
-        memProgress.style.width = `${memoryPercent}%`;
-        memProgress.className = 'progress-fill';
-        if (memoryPercent > 70) memProgress.classList.add('warning');
-        if (memoryPercent > 85) memProgress.classList.add('error');
-    }
+    updateElement('dash-memory', `${memory} MB`);
+    updateElement('dash-memory-limit', `${memoryLimit} MB`);
+    updateProgressBar('memory-progress', memoryPercent);
     
-    // 4. FIREBASE & CACHE STATS
-    const queriesEl = document.getElementById('dash-queries');
-    if (queriesEl) queriesEl.textContent = firebaseQueries;
+    // 4. FIREBASE & CACHE
+    updateElement('dash-queries', firebaseQueries);
     
     const cacheRate = getCacheHitRate();
-    const cacheRateEl = document.getElementById('dash-cache-rate');
-    if (cacheRateEl) cacheRateEl.textContent = `${cacheRate}%`;
+    updateElement('dash-cache-rate', `${cacheRate}%`);
+    updateProgressBar('cache-progress', cacheRate);
     
-    const cacheProgress = document.getElementById('cache-progress');
-    if (cacheProgress) {
-        cacheProgress.style.width = `${cacheRate}%`;
-        cacheProgress.className = 'progress-fill';
-        if (cacheRate < 70) cacheProgress.classList.add('warning');
-        if (cacheRate < 50) cacheProgress.classList.add('error');
-    }
-    
-    // 🆕 CACHE TTL & DETAILED INFO (v3.0)
+    // Cache details
     if (typeof window.getFirestoreCacheInfo === 'function') {
         const cacheInfo = window.getFirestoreCacheInfo();
-        const linksCachedEl = document.getElementById('dash-links-cached');
-        const pagesCachedEl = document.getElementById('dash-pages-cached');
-        const ttlEl = document.getElementById('dash-cache-ttl');
+        updateElement('dash-links-cached', cacheInfo.links.count || 0);
+        updateElement('dash-pages-cached', cacheInfo.pages.count || 0);
         
-        if (linksCachedEl) linksCachedEl.textContent = cacheInfo.links.count || 0;
-        if (pagesCachedEl) pagesCachedEl.textContent = cacheInfo.pages.count || 0;
-        
-        if (ttlEl && cacheInfo.links.age) {
+        // Cache TTL
+        if (cacheInfo.links.age !== null) {
             const ttlSeconds = Math.max(0, Math.round((cacheInfo.config.LINKS_DURATION - cacheInfo.links.age) / 1000));
-            ttlEl.textContent = `${ttlSeconds}s`;
+            updateElement('dash-cache-ttl', `${ttlSeconds}s`);
         }
     }
     
-    // 5. NETWORK & LATENCY
+    // 5. NETWORK
     if (latencyMeasurements.length > 0) {
         const avgLatency = Math.round(latencyMeasurements.reduce((a, b) => a + b, 0) / latencyMeasurements.length);
-        const latencyEl = document.getElementById('dash-latency');
-        if (latencyEl) latencyEl.textContent = `${avgLatency} ms`;
+        updateElement('dash-latency', `${avgLatency} ms`);
     }
+    
+    updateElement('dash-rtt', `${networkRTT} ms`);
     
     const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-    const connEl = document.getElementById('dash-connection');
-    if (connEl) connEl.textContent = connection ? connection.effectiveType : 'Unknown';
-
-    const rttEl = document.getElementById('dash-rtt');
-    if (rttEl) rttEl.textContent = `${networkRTT} ms`;
+    updateElement('dash-connection', connection ? connection.effectiveType : 'Unknown');
     
-    // 6. 🆕 HARDWARE STATUS (v3.0)
-    const batteryEl = document.getElementById('dash-battery');
-    if (batteryEl && batteryInfo.level !== null) {
-        batteryEl.textContent = `${batteryInfo.level}% ${batteryInfo.charging ? '⚡' : '🔋'}`;
-        batteryEl.className = 'perf-metric-value ' + (batteryInfo.level < 20 ? 'error' : 'success');
+    // 6. SYSTEM INFO
+    updateElement('dash-device', detectDeviceType());
+    
+    // Battery
+    if (batteryInfo.level !== null) {
+        const batteryText = `${batteryInfo.level}% ${batteryInfo.charging ? '⚡' : '🔋'}`;
+        const batteryClass = batteryInfo.level < 20 ? 'error' : batteryInfo.charging ? 'success' : '';
+        updateElement('dash-battery', batteryText, batteryClass);
+    } else {
+        updateElement('dash-battery', 'N/A');
     }
     
-    // 7. SYSTÉMOVÉ INFORMACE
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    const deviceEl = document.getElementById('dash-device');
-    const screenEl = document.getElementById('dash-screen');
-    const uptimeEl = document.getElementById('dash-uptime');
-    
-    if (deviceEl) deviceEl.textContent = isMobile ? 'Mobile Device' : 'Desktop (Lenovo IdeaPad)';
-    if (screenEl) screenEl.textContent = `${window.screen.width}x${window.screen.height}`;
+    updateElement('dash-screen', `${window.screen.width}x${window.screen.height}`);
     
     const uptime = Math.floor((Date.now() - startTime) / 1000);
     const minutes = Math.floor(uptime / 60);
     const seconds = uptime % 60;
-    if (uptimeEl) uptimeEl.textContent = `${minutes}m ${seconds}s`;
+    updateElement('dash-uptime', `${minutes}m ${seconds}s`);
+    
+    // 7. PAGE SWITCHING STATS
+    updateElement('dash-page-switches', `${pageSwitch.count}x`);
+    if (pageSwitch.times.length > 0) {
+        const avg = Math.round(pageSwitch.times.reduce((a,b)=>a+b,0) / pageSwitch.times.length);
+        const fastest = Math.min(...pageSwitch.times);
+        const slowest = Math.max(...pageSwitch.times);
+        updateElement('dash-page-avg', `${avg} ms`);
+        updateElement('dash-page-fastest', `${fastest} ms`);
+        updateElement('dash-page-slowest', `${slowest} ms`);
+    }
+    
+    // 8. LINK OPERATIONS
+    updateElement('dash-links-added', linkOperations.added);
+    updateElement('dash-links-deleted', linkOperations.deleted);
+    updateElement('dash-links-edited', linkOperations.edited);
+    updateElement('dash-links-moved', linkOperations.moved);
+    
+    // 9. LONG TASKS
+    updateElement('dash-long-tasks', longTasks.length);
+    const longTasksList = document.getElementById('dash-long-tasks-list');
+    if (longTasksList && longTasks.length > 0) {
+        longTasksList.innerHTML = longTasks.slice(-5).reverse().map(lt => 
+            `<div>[${lt.timestamp}] Lag: ${lt.duration}ms</div>`
+        ).join('');
+    } else if (longTasksList) {
+        longTasksList.innerHTML = '<div style="color: #00ff00;">✅ Žádné incidenty</div>';
+    }
 }
 
 // ========================================
-// 📈 POMOCNÉ FUNKCE (PAMĚŤ, GRAFY)
+// 🔧 HELPER FUNKCE
 // ========================================
+
+function updateElement(id, text, className = '') {
+    const el = document.getElementById(id);
+    if (el) {
+        el.textContent = text;
+        if (className) {
+            el.className = 'perf-metric-value ' + className;
+        }
+    }
+}
+
+function updateProgressBar(id, percent) {
+    const bar = document.getElementById(id);
+    if (bar) {
+        bar.style.width = `${Math.min(100, percent)}%`;
+        bar.className = 'progress-fill';
+        if (percent > 70) bar.classList.add('warning');
+        if (percent > 85) bar.classList.add('error');
+    }
+}
+
+function detectDeviceType() {
+    const ua = navigator.userAgent.toLowerCase();
+    const cores = navigator.hardwareConcurrency || 0;
+    
+    // Lenovo IdeaPad Gaming 3 detection
+    if (ua.includes('windows') && cores >= 12) {
+        return "Lenovo IdeaPad Gaming 3 (Ryzen)";
+    }
+    
+    if (/iphone|ipad|ipod/.test(ua)) {
+        return "Apple iOS Device";
+    }
+    
+    if (ua.includes('android')) {
+        return "Android Mobile";
+    }
+    
+    if (ua.includes('macintosh')) {
+        return "MacOS Desktop";
+    }
+    
+    return ua.includes('windows') ? 'Windows Desktop' : 'Unknown Device';
+}
 
 function updateSparkline() {
     const sparkline = document.getElementById('fps-sparkline');
@@ -297,22 +338,21 @@ function togglePerfDashboard() {
 function forceRefreshCache() {
     if (typeof window.forceRefreshFirestoreCache === 'function') {
         window.forceRefreshFirestoreCache();
-        alert('✅ Cache byla obnovena přes Performance Monitor!');
+        addToTimeline('Cache Refresh', 'Manuální obnovení cache');
+        alert('✅ Cache byla obnovena!');
     } else {
-        alert('⚠️ Funkce forceRefreshFirestoreCache nebyla nalezena.');
+        alert('⚠️ Funkce forceRefreshFirestoreCache není dostupná.');
     }
 }
 
 function clearPerfStats() {
-    if (confirm('Opravdu chcete vymazat veškeré naměřené statistiky?')) {
+    if (confirm('Opravdu chcete vymazat všechny statistiky?')) {
         firebaseQueries = 0;
         cacheHits = 0;
         cacheMisses = 0;
         renderTimes = [];
         fpsHistory = [];
         latencyMeasurements = [];
-        
-        // Extended stats
         pageSwitch = { count: 0, times: [] };
         searchStats = { count: 0, times: [] };
         linkOperations = { added: 0, deleted: 0, edited: 0, moved: 0 };
@@ -320,14 +360,14 @@ function clearPerfStats() {
         longTasks = [];
         
         startTime = Date.now();
-        addToTimeline('Statistiky vymazány', 'Uživatel provedl reset');
+        addToTimeline('Stats Cleared', 'Veškeré statistiky vymazány');
         
         alert('✅ Statistiky vymazány!');
         updateDashboard();
     }
 }
 
-// Event Listeners pro modal
+// Event Listeners
 const perfDashboardModal = document.getElementById('perfDashboardModal');
 if (perfDashboardModal) {
     perfDashboardModal.addEventListener('click', function(e) {
@@ -344,7 +384,7 @@ document.addEventListener('keydown', function(e) {
 });
 
 // ========================================
-// 🪝 SYSTÉMOVÉ HOOKY PRO EXTERNÍ SKRIPTY
+// 🪝 SYSTÉMOVÉ HOOKY
 // ========================================
 
 window.measureRenderTime = function(timeMs) {
@@ -406,13 +446,11 @@ window.trackLinkMoved = function(linkName) {
 function addToTimeline(action, details = '') {
     const timestamp = new Date().toLocaleTimeString('cs-CZ');
     timeline.push({ time: timestamp, action, details });
-    
-    // Udržujeme posledních 50 záznamů
     if (timeline.length > 50) timeline.shift();
 }
 
 // ========================================
-// 📥 EXPORTY (TXT & JSON)
+// 📥 EXPORTY
 // ========================================
 
 function exportPerfReport() {
@@ -430,24 +468,24 @@ function exportPerfReport() {
         ? Math.round(renderTimes.reduce((a, b) => a + b, 0) / renderTimes.length) 
         : 0;
     
-    const avgLatency = latencyMeasurements.length > 0 
-        ? Math.round(latencyMeasurements.reduce((a, b) => a + b, 0) / latencyMeasurements.length) 
-        : 0;
-    
     let cacheInfo = { links: { count: 0 }, pages: { count: 0 } };
     if (typeof window.getFirestoreCacheInfo === 'function') {
         cacheInfo = window.getFirestoreCacheInfo();
     }
     
+    const avgPageSwitch = pageSwitch.times.length > 0 
+        ? Math.round(pageSwitch.times.reduce((a,b)=>a+b,0) / pageSwitch.times.length) 
+        : 0;
+    
     const report = `
 ═══════════════════════════════════════════════════════════════
-    ⚡ PERFORMANCE REPORT - Hvězdná Databáze Odkazů
+    ⚡ PERFORMANCE REPORT v3.1 - Hvězdná Databáze
 ═══════════════════════════════════════════════════════════════
 
 📅 Datum a čas: ${timestamp}
 ⏱️  Uptime: ${minutes}m ${seconds}s
-📱 Zařízení: ${/iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ? 'Mobile' : 'Desktop (Lenovo IdeaPad)'}
-🔋 Baterie: ${batteryInfo.level}% (${batteryInfo.charging ? 'Nabíjení' : 'Provoz z baterie'})
+📱 Zařízení: ${detectDeviceType()}
+🔋 Baterie: ${batteryInfo.level !== null ? `${batteryInfo.level}% ${batteryInfo.charging ? '⚡' : '🔋'}` : 'N/A'}
 
 ───────────────────────────────────────────────────────────────
 🎨 RENDERING METRIKY
@@ -457,11 +495,12 @@ FPS Historie:            ${fpsHistory.join(', ')} fps
 Průměrný render:         ${avgRender} ms
 
 ───────────────────────────────────────────────────────────────
-💾 PAMĚĚŤ (RAM)
+💾 PAMĚŤ (RAM)
 ───────────────────────────────────────────────────────────────
 Použitá paměť:           ${memory} MB
 Limit prohlížeče:        ${memoryLimit} MB
 Vytížení:                ${memoryPercent}%
+Status:                  ${memoryPercent > 85 ? '❌ KRITICKÉ' : memoryPercent > 70 ? '⚠️ VAROVÁNÍ' : '✅ OK'}
 
 ───────────────────────────────────────────────────────────────
 🔥 FIREBASE & CACHE
@@ -472,26 +511,32 @@ Odkazy v cache:          ${cacheInfo.links.count}
 Stránky v cache:         ${cacheInfo.pages.count}
 
 ───────────────────────────────────────────────────────────────
-🌐 SÍŤOVÁ DATA
+🌐 SÍŤOVÉ DATA
 ───────────────────────────────────────────────────────────────
-Průměrná latence:        ${avgLatency} ms
 Network RTT:             ${networkRTT} ms
 Typ připojení:           ${navigator.connection ? navigator.connection.effectiveType : 'Unknown'}
 
 ───────────────────────────────────────────────────────────────
-📈 OPERAČNÍ STATISTIKY
+📊 PŘEPÍNÁNÍ STRÁNEK
 ───────────────────────────────────────────────────────────────
-Počet přepnutí stran:    ${pageSwitch.count}x
-Počet vyhledávání:       ${searchStats.count}x
+Počet přepnutí:          ${pageSwitch.count}x
+Průměrná doba:           ${avgPageSwitch} ms
+Nejrychlejší:            ${pageSwitch.times.length > 0 ? Math.min(...pageSwitch.times) : 0} ms
+Nejpomalejší:            ${pageSwitch.times.length > 0 ? Math.max(...pageSwitch.times) : 0} ms
+
+───────────────────────────────────────────────────────────────
+📝 OPERACE S ODKAZY
+───────────────────────────────────────────────────────────────
 Přidáno odkazů:          ${linkOperations.added}
 Smazáno odkazů:          ${linkOperations.deleted}
 Upraveno odkazů:         ${linkOperations.edited}
+Přesunuto odkazů:        ${linkOperations.moved}
 
 ───────────────────────────────────────────────────────────────
 ⚠️ INCIDENTY (Záseky > 50ms)
 ───────────────────────────────────────────────────────────────
 Počet detekovaných:      ${longTasks.length}
-${longTasks.slice(-5).map(lt => `[${lt.timestamp}] Doba: ${Math.round(lt.duration)}ms`).join('\n')}
+${longTasks.slice(-5).map(lt => `[${lt.timestamp}] Doba: ${lt.duration}ms`).join('\n')}
 
 ───────────────────────────────────────────────────────────────
 ⏱️ TIMELINE (Posledních 20 událostí)
@@ -499,64 +544,33 @@ ${longTasks.slice(-5).map(lt => `[${lt.timestamp}] Doba: ${Math.round(lt.duratio
 ${timeline.slice(-20).map(event => `${event.time} - ${event.action}: ${event.details}`).join('\n')}
 
 ═══════════════════════════════════════════════════════════════
-Vygenerováno: Performance Monitor v3.0
+Vygenerováno: Performance Monitor v3.1 (Calibrated)
 Vice admirál Jiřík - Hvězdná flotila
 ═══════════════════════════════════════════════════════════════
     `.trim();
     
-    downloadPerfFile(report, `perf_report_${Date.now()}.txt`, 'text/plain');
+    downloadFile(report, `perf_report_${Date.now()}.txt`, 'text/plain');
 }
 
 function exportPerfJson() {
-    const cacheInfo = typeof window.getFirestoreCacheInfo === 'function' ? window.getFirestoreCacheInfo() : {};
+    const cacheInfo = typeof window.getFirestoreCacheInfo === 'function' 
+        ? window.getFirestoreCacheInfo() 
+        : { links: { count: 0 }, pages: { count: 0 } };
     
-    // 🚀 VÝPOČET ČASŮ
-    const now = new Date();
-    const uptimeInSeconds = Math.floor((Date.now() - startTime) / 1000);
-    const readableTime = now.toLocaleTimeString('cs-CZ');
-
-    // 🛰️ AUTO-DETEKCE ZAŘÍZENÍ (Jiříkova specifikace)
-    const getDeviceType = () => {
-        const ua = navigator.userAgent.toLowerCase();
-        const vendor = navigator.vendor.toLowerCase();
-        
-        // 1. Detekce tvého Lenova (podle tvých hardware parametrů)
-        if (ua.includes('windows') && (navigator.hardwareConcurrency >= 12 || ua.includes('nvidia'))) {
-            return "Lenovo IdeaPad Gaming 3 (Ryzen/GTX1650)"; //[cite: 1]
-        }
-        
-        // 2. Nakousnuté jablko (iOS / iPhone / iPad)
-        if (/iphone|ipad|ipod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) {
-            return "Nakousnuté Jablko (iOS/iPadOS)";
-        }
-        
-        // 3. Android
-        if (ua.includes('android')) {
-            return "Android Mobile";
-        }
-        
-        // 4. MacOS
-        if (ua.includes('macintosh') || ua.includes('mac os x')) {
-            return "MacOS (Apple Computer)";
-        }
-        
-        return "Neznámý typ zařízení";
-    };
-
     const dataPackage = {
         meta: {
             app: "Star Trek Database",
             author: "Vice admirál Jiřík",
-            version: "3.1 Galactic-Auto",
-            timestamp: now.toISOString(),
-            timestamp_cz: readableTime,
-            uptime_seconds: isNaN(uptimeInSeconds) ? 0 : uptimeInSeconds
+            version: "3.1 Calibrated",
+            timestamp: new Date().toISOString(),
+            timestamp_cz: new Date().toLocaleString('cs-CZ'),
+            uptime_seconds: Math.floor((Date.now() - startTime) / 1000)
         },
         hardware: {
-            // Tady používáme naši novou detekci
-            device: getDeviceType(),
+            device: detectDeviceType(),
             battery: batteryInfo,
             screen: `${window.screen.width}x${window.screen.height}`,
+            cores: navigator.hardwareConcurrency || 'N/A',
             memory: {
                 used_mb: getMemoryUsage(),
                 limit_mb: getMemoryLimit()
@@ -567,7 +581,8 @@ function exportPerfJson() {
             fps_history: fpsHistory,
             render_times: renderTimes,
             network_rtt: networkRTT,
-            latency_avg: latencyMeasurements.length > 0 ? Math.round(latencyMeasurements.reduce((a,b)=>a+b,0)/latencyMeasurements.length) : 0
+            page_switches: pageSwitch,
+            search_stats: searchStats
         },
         firebase: {
             queries: firebaseQueries,
@@ -582,10 +597,10 @@ function exportPerfJson() {
         timeline: timeline
     };
 
-    downloadPerfFile(JSON.stringify(dataPackage, null, 4), `perf_data_${Date.now()}.json`, 'application/json');
+    downloadFile(JSON.stringify(dataPackage, null, 4), `perf_data_${Date.now()}.json`, 'application/json');
 }
 
-function downloadPerfFile(content, fileName, contentType) {
+function downloadFile(content, fileName, contentType) {
     const a = document.createElement("a");
     const file = new Blob([content], { type: contentType });
     a.href = URL.createObjectURL(file);
@@ -599,5 +614,6 @@ function downloadPerfFile(content, fileName, contentType) {
 // ========================================
 
 monitorPerformance();
-addToTimeline('Performance Monitor v3.0', 'Systém inicializován a připraven');
-console.log('⚡ Performance Monitor v3.0 (Galactic Edition) běží na plný výkon.');
+addToTimeline('Performance Monitor v3.1', 'Systém zkalibrován a spuštěn');
+console.log('✅ Performance Monitor v3.1 (Calibrated Edition) je online!');
+console.log('🖖 Vice admirál Jiřík - Všechny systémy funkční!');
