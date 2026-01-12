@@ -1,5 +1,6 @@
-// links.js - v2.0 OPTIMIZED FOR MOBILE + PERFORMANCE TRACKING
+// links.js - v2.1 OPTIMIZED with replaceChildren()
 // 🚀 Minimální DOM manipulace, debounced sync messages, efektivní rendering
+// ⚡ NOVÉ: replaceChildren() místo innerHTML pro lepší výkon
 
 const linksTableBody = document.getElementById('linksTableBody');
 const addLinkButton = document.getElementById('addLinkButton');
@@ -69,7 +70,7 @@ window.populateLinksTable = function(links) {
     });
 };
 
-// 🚀 NOVÁ FUNKCE: Optimalizovaný rendering
+// 🚀 NOVÁ FUNKCE: Optimalizovaný rendering s replaceChildren()
 function renderLinksTableOptimized(links) {
     // Prázdný stav
     if (links.length === 0) {
@@ -79,33 +80,38 @@ function renderLinksTableOptimized(links) {
         return;
     }
 
-    // 🚀 OPTIMALIZACE: Použijeme DocumentFragment (minimální reflow)
+    // 🚀 KLÍČOVÁ OPTIMALIZACE: DocumentFragment + replaceChildren()
     const fragment = document.createDocumentFragment();
 
-    // 🚀 OPTIMALIZACE: Batch vytvoření všech řádků najednou
-    const rowsHTML = links.map((link, index) => {
+    links.forEach((link, index) => {
         const isFirst = index === 0;
         const isLast = index === links.length - 1;
         
-        return `
-            <tr data-link-id="${link.id}">
-                <td>${index + 1}</td>
-                <td>${escapeHtml(link.name)}</td>
-                <td><button class="url-button" data-url="${escapeHtml(link.url)}" title="${escapeHtml(link.url)}">Odkaz</button></td>
-                <td>
-                    <div class="action-buttons">
-                        <button class="move-up-button" ${isFirst ? 'disabled' : ''}>⬆️</button>
-                        <button class="move-down-button" ${isLast ? 'disabled' : ''}>⬇️</button>
-                        <button class="edit-link-button" data-name="${escapeHtml(link.name)}" data-url="${escapeHtml(link.url)}">✏️</button>
-                        <button class="delete-link-button">🗑️</button>
-                    </div>
-                </td>
-            </tr>
+        // Vytvoříme řádek jako reálný DOM element
+        const tr = document.createElement('tr');
+        tr.dataset.linkId = link.id;
+        
+        // Obsah nastavíme přes innerHTML (rychlejší než createElement pro každý <td>)
+        tr.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${escapeHtml(link.name)}</td>
+            <td><button class="url-button" data-url="${escapeHtml(link.url)}" title="${escapeHtml(link.url)}">Odkaz</button></td>
+            <td>
+                <div class="action-buttons">
+                    <button class="move-up-button" ${isFirst ? 'disabled' : ''}>⬆️</button>
+                    <button class="move-down-button" ${isLast ? 'disabled' : ''}>⬇️</button>
+                    <button class="edit-link-button" data-name="${escapeHtml(link.name)}" data-url="${escapeHtml(link.url)}">✏️</button>
+                    <button class="delete-link-button">🗑️</button>
+                </div>
+            </td>
         `;
-    }).join('');
+        
+        // Přidáme do fragmentu (stále v paměti!)
+        fragment.appendChild(tr);
+    });
 
-    // 🚀 KLÍČOVÁ OPTIMALIZACE: Jeden innerHTML místo postupného appendování
-    linksTableBody.innerHTML = rowsHTML;
+    // 🚀 NOVÉ: replaceChildren() místo innerHTML (rychlejší, méně reflow)
+    linksTableBody.replaceChildren(fragment);
 
     clearAllLinksButton.style.display = links.length > 0 ? 'none' : 'none';
     currentLinks = links;
@@ -113,7 +119,7 @@ function renderLinksTableOptimized(links) {
     // Refresh vyhledávače
     if (window.searchManager) window.searchManager.refresh();
     
-    console.log(`✅ Vykresleno ${links.length} odkazů (optimized render)`);
+    console.log(`✅ Vykresleno ${links.length} odkazů (replaceChildren optimized)`);
 }
 
 // Helper funkce pro escapování HTML
@@ -412,7 +418,7 @@ if (saveEditButton) {
 
 // --- H. INICIALIZACE - OPTIMALIZOVÁNO ---
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log("📄 Links.js v2.0 + Tracking: Čekám na PaginationManager...");
+    console.log("📄 Links.js v2.1 + replaceChildren(): Čekám na PaginationManager...");
     
     // 🚀 OPTIMALIZACE: Chytřejší čekání s timeoutem
     let checkCount = 0;
