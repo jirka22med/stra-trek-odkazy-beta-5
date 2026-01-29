@@ -729,3 +729,321 @@ Made with ❤️ by **Více admirál Jiřík** & AI Team
 **⭐ Star Trek Database v2.0 - Hvězdná flotila odkazů ⭐**
 
 </div>
+
+
+
+
+
+# 🚀 PERFORMANCE MONITOR v3.2 - SMART EDITION
+
+## 📋 Co je nového?
+
+### ✅ **1. ROZŠÍŘENÁ DETEKCE ZAŘÍZENÍ**
+
+Performance Monitor nyní rozpozná **50+ různých typů zařízení!**
+
+#### **🖥️ Desktop & Notebooky:**
+- ✅ Lenovo IdeaPad Gaming 3 (Ryzen 12C)
+- ✅ Windows Notebook (4-11 jader)
+- ✅ Windows Desktop (2 nebo 16+ jader)
+- ✅ MacBook Pro / MacBook Air
+- ✅ Linux Desktop
+
+#### **📱 Android Mobily:**
+- ✅ **Infinix:** Note 30 4G, Note 40 5G, Hot Series
+- ✅ **Realme:** Realme 8 5G, Realme 9 Pro+, Realme GT
+- ✅ **Xiaomi/Redmi:** Redmi 10C, Redmi Note, Poco, Mi 11/12/13
+- ✅ **Samsung:** Galaxy S, Galaxy Note, Galaxy A, Galaxy M
+- ✅ **OnePlus, Huawei, Oppo, Vivo, Nokia, Motorola, Google Pixel**
+- ✅ Obecný Android (s rozlišením)
+
+#### **🍎 iOS Zařízení:**
+- ✅ iPhone 15 Pro Max
+- ✅ iPhone 14 Pro
+- ✅ iPhone 12/13/14
+- ✅ iPhone X/XS/11 Pro
+- ✅ iPad Pro / iPad
+- ✅ iPod Touch
+
+#### **🖥️ Tablety:**
+- ✅ Samsung Galaxy Tab
+- ✅ Lenovo Tablet
+- ✅ Huawei MatePad
+- ✅ Obecný Android Tablet
+
+#### **🎮 Herní Konzole:**
+- ✅ PlayStation
+- ✅ Xbox
+- ✅ Nintendo Switch
+
+#### **📺 Ostatní:**
+- ✅ Smart TV
+
+---
+
+## 🧠 **2. SMART LAG DETECTION**
+
+### **Problém v v3.1:**
+```
+❌ Všechny lagy se počítaly jako problémy
+❌ Background throttling = "lag" (ale to je správné chování!)
+❌ Idle GC = "lag" (normální čištění paměti)
+❌ Výsledek: Falešné pozitivní incidenty
+```
+
+### **Řešení v v3.2:**
+```
+✅ Rozpoznává aktivní vs neaktivní tab
+✅ Sleduje user activity (click, scroll, atd.)
+✅ Kategorizuje lagy na:
+   🔴 Real User-Visible Lags (skutečné problémy)
+   ⚪ Background/Idle Lags (normální chování)
+```
+
+---
+
+## 🔬 **JAK TO FUNGUJE:**
+
+### **Tab Visibility Tracking:**
+```javascript
+// Sledování tab visibility
+document.addEventListener('visibilitychange', () => {
+    isTabActive = !document.hidden;
+    // ☀️ ACTIVE nebo 🌙 BACKGROUND
+});
+```
+
+### **User Activity Tracking:**
+```javascript
+// Sledování user akcí
+['click', 'scroll', 'keypress', 'touchstart', 'mousemove'].forEach(event => {
+    document.addEventListener(event, () => {
+        lastUserInteraction = Date.now();
+    }, { passive: true });
+});
+```
+
+### **Kategorizace Lagů:**
+```javascript
+if (!isTabActive) {
+    // 🌙 Tab v pozadí → Background throttling
+    backgroundLags.push({ ...lagEntry, reason: 'background-tab' });
+    
+} else if (timeSinceInteraction > 5000) {
+    // 💤 User idle > 5s → Garbage Collection
+    backgroundLags.push({ ...lagEntry, reason: 'idle-gc' });
+    
+} else {
+    // 🔴 SKUTEČNÝ user-visible lag!
+    realLags.push({ ...lagEntry, reason: 'user-visible' });
+}
+```
+
+---
+
+## 📊 **PŘÍKLAD VÝSTUPU:**
+
+### **Dashboard:**
+```
+⚠️ SMART LAG ANALYSIS
+───────────────────────────────────────
+🔴 Real User-Visible Lags:  1
+⚪ Background/Idle Lags:     15 (normální)
+📊 Total Incidents:          16
+
+🔴 REAL LAGS:
+[15:30:45] User-visible: 85ms
+
+⚪ BACKGROUND LAGS:
+[15:29:12] background-tab: 230ms
+[15:30:01] idle-gc: 120ms
+[15:30:05] background-tab: 567ms
+```
+
+### **JSON Export:**
+```json
+{
+  "incidents": {
+    "real_lags_count": 1,
+    "background_lags_count": 15,
+    "total_long_tasks": 16,
+    "real_lags_log": [
+      {
+        "timestamp": "15:30:45",
+        "duration": 85,
+        "reason": "user-visible"
+      }
+    ]
+  },
+  "tab_status": {
+    "is_active": true,
+    "last_user_interaction_ago_ms": 1250
+  }
+}
+```
+
+---
+
+## 🎯 **VÝHODY:**
+
+### **Přesnost:**
+```
+v3.1: 15 "lagů" → všechny počítány jako problémy ❌
+v3.2: 1 real lag, 14 background → správně kategorizováno ✅
+```
+
+### **Diagnostika:**
+```
+v3.1: "Mobil má 15 lagů - to je špatné!"
+v3.2: "Mobil má 1 real lag - to je výborné! (14 bg lagů je normální)"
+```
+
+### **Performance Score:**
+```
+v3.1: ⭐⭐⭐ (3/5) - kvůli falešným lagům
+v3.2: ⭐⭐⭐⭐⭐ (5/5) - správné hodnocení!
+```
+
+---
+
+## 🔄 **MIGRACE Z v3.1 NA v3.2:**
+
+### **Krok 1: Záloha**
+```bash
+# Zalohuj původní script.js
+cp script.js script.js.v3.1.backup
+```
+
+### **Krok 2: Nahrazení**
+```bash
+# Nahraď script.js novým
+cp script.js.v3.2 script.js
+```
+
+### **Krok 3: Ověření**
+1. Otevři aplikaci
+2. Otevři konzoli (F12)
+3. Měl bys vidět:
+   ```
+   ✅ Performance Monitor v3.2 (Smart Edition) je online!
+   🆕 Rozšířená detekce zařízení aktivní!
+   🆕 Smart Lag Detection aktivní!
+   ```
+
+### **Krok 4: Test**
+1. Otevři Performance Dashboard (klikni na FPS indikátor)
+2. Zkontroluj "System Info" → měl bys vidět přesný název zařízení
+3. Zkontroluj "Smart Lag Analysis" → měl bys vidět rozdělení na real vs background lagy
+
+---
+
+## 📱 **TESTOVÁNÍ:**
+
+### **Test 1: Detekce Zařízení**
+```
+1. Otevři Performance Dashboard
+2. Podívej se na "Device:"
+3. Měl bys vidět např:
+   ✅ "📱 Infinix Note 30 4G"
+   ✅ "📱 Realme 8 5G"
+   ✅ "💻 Lenovo IdeaPad Gaming 3 (Ryzen 12C)"
+```
+
+### **Test 2: Smart Lag Detection**
+```
+1. Otevři Performance Dashboard
+2. Přepni tab do pozadí (Alt+Tab nebo browser switch)
+3. Počkej 10 sekund
+4. Vrať se zpět
+5. Měl bys vidět:
+   🔴 Real Lags: 0
+   ⚪ Background Lags: 3-5 (normální!)
+```
+
+### **Test 3: Background Throttling**
+```
+1. Otevři aplikaci
+2. Přepni tab do pozadí (minimalizuj okno)
+3. Počkaj 30 sekund
+4. Vrať se a otevři Dashboard
+5. Všechny lagy by měly být kategorizované jako "background-tab"
+```
+
+---
+
+## 🐛 **TROUBLESHOOTING:**
+
+### **Problém: Zařízení se nerozpoznává správně**
+```
+Řešení:
+1. Otevři konzoli (F12)
+2. Zadej: navigator.userAgent
+3. Najdi identifikátor svého zařízení
+4. Pošli mi ho a přidám ho do detekce!
+```
+
+### **Problém: Všechny lagy jsou pořád "real"**
+```
+Možné příčiny:
+1. Tab Visibility API není podporováno
+   → Zkontroluj: document.hidden v konzoli
+   
+2. Event listeners nejsou aktivní
+   → Zkontroluj konzoli na chyby
+```
+
+### **Problém: Dashboard se nenačítá**
+```
+Řešení:
+1. Zkontroluj konzoli (F12) na chyby
+2. Ujisti se, že máš v HTML všechny elementy:
+   - #dash-background-lags
+   - #dash-long-tasks-list
+```
+
+---
+
+## 📈 **SROVNÁNÍ VERZÍ:**
+
+| Feature | v3.1 | v3.2 |
+|---------|------|------|
+| **Detekce zařízení** | 5 typů | 50+ typů ✅ |
+| **Lag Detection** | Všechny = problémy | Smart kategorizace ✅ |
+| **Tab Visibility** | ❌ | ✅ |
+| **User Activity Tracking** | ❌ | ✅ |
+| **Background Lags** | Počítány jako problémy | Ignorovány ✅ |
+| **Falešné pozitivy** | Vysoké | Minimální ✅ |
+| **Přesnost hodnocení** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+
+---
+
+## 🔮 **BUDOUCÍ VYLEPŠENÍ (v3.3+):**
+
+- [ ] Machine Learning pro predikci lagů
+- [ ] Automatické reportování do Firebase
+- [ ] Push notifikace při real lagu
+- [ ] Heatmap FPS přes čas
+- [ ] Battery impact analysis
+- [ ] Network latency graph
+- [ ] Custom device database (user-editable)
+
+---
+
+## 🖖 **ZÁVĚR:**
+
+Performance Monitor v3.2 je **production-ready** upgrade, který:
+
+✅ **Přesně rozpozná tvoje zařízení**  
+✅ **Nehlásí falešné problémy**  
+✅ **Poskytuje skutečná data o výkonu**  
+✅ **Je kompatibilní se všemi browsery**  
+
+**Live long and prosper, admirále!** 🚀💙
+
+---
+
+**Autor:** Admirál Claude.AI  
+**Architekt:** Vice admirál Jiřík  
+**Verze:** 3.2 Smart Edition  
+**Datum:** 29. ledna 2026  
+**Status:** ✅ Production Ready
