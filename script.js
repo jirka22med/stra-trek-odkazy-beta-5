@@ -328,10 +328,10 @@ function detectDeviceType() {
     // 🖥️ DESKTOPY & NOTEBOOKY
     // ========================================
     
-    // Lenovo IdeaPad Gaming 3 (high-end)
-    if (ua.includes('windows') && cores >= 12) {
-        return "💻 Lenovo IdeaPad Gaming 3 (Ryzen 12C)";
-    }
+     /// Lenovo IdeaPad Gaming 3 (high-end)
+if (ua.includes('windows') && cores >= 12) {
+    return "💻 Lenovo IdeaPad Gaming 3 (Název zařízení: DESKTOP-GLDFRSU | Procesor: AMD Ryzen 5 4600H with Radeon Graphics (3.00 GHz) | Nainstalovaná paměť RAM: 16,0 GB (použitelné: 15,4 GB) | ID zařízení: E5D9E72A-66E8-426E-A722-152D8BE53D4C | ID produktu: 00325-96755-12951-AAOEM | Typ systému: 64bitový operační systém, procesor pro platformu x64 | Pero a dotykové ovládání: Není k dispozici | Grafika: AMD Radeon(TM) Graphics & NVIDIA GeForce GTX 1650 4GB VRAM)";
+}
     
     // Windows notebooky (obecné)
     if (ua.includes('windows') && cores >= 4 && cores < 12) {
@@ -904,3 +904,4 @@ console.log('✅ Performance Monitor v3.2 (Smart Edition) je online!');
 console.log('🆕 Rozšířená detekce zařízení aktivní!');
 console.log('🆕 Smart Lag Detection aktivní!');
 console.log('🖖 Vice admirál Jiřík - Všechny systémy funkční!');
+
