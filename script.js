@@ -1,7 +1,8 @@
 // ===================================================================
-// PERFORMANCE MONITOR v3.1 - CALIBRATED GALACTIC EDITION
+// PERFORMANCE MONITOR v3.2 - SMART EDITION
 // Autor: Claude.ai | Architekt: Vice admirál Jiřík
-// ✅ ZKALIBROVÁNO: Všechny metriky správně zobrazeny
+// ✅ NOVINKA: Rozšířená detekce zařízení + Smart Lag Detection
+// ✅ Ignoruje background throttling + user idle
 // ===================================================================
 
 let frameCount = 0;
@@ -26,6 +27,29 @@ let longTasks = [];
 let networkRTT = 0;
 
 // ========================================
+// 🆕 SMART LAG DETECTION - Tab & User Tracking
+// ========================================
+let isTabActive = !document.hidden;
+let lastUserInteraction = Date.now();
+let realLags = [];      // Skutečné user-visible lagy
+let backgroundLags = []; // Background throttling (ignorujeme)
+
+// Track user activity
+['click', 'scroll', 'keypress', 'touchstart', 'mousemove'].forEach(event => {
+    document.addEventListener(event, () => {
+        lastUserInteraction = Date.now();
+    }, { passive: true });
+});
+
+// Track tab visibility
+document.addEventListener('visibilitychange', () => {
+    isTabActive = !document.hidden;
+    const status = isTabActive ? '☀️ ACTIVE' : '🌙 BACKGROUND';
+    console.log(`🔄 Tab status: ${status}`);
+    addToTimeline('Tab Status', status);
+});
+
+// ========================================
 // 🛡️ INICIALIZACE SYSTÉMOVÝCH SENZORŮ
 // ========================================
 
@@ -45,23 +69,48 @@ if ('getBattery' in navigator) {
     });
 }
 
-// 2. Long Tasks (detekce zásekù)
+// 2. 🆕 SMART Long Tasks Detection
 try {
     const taskObserver = new PerformanceObserver((list) => {
         list.getEntries().forEach((entry) => {
             if (entry.duration > 50) {
-                longTasks.push({ 
+                const timeSinceInteraction = Date.now() - lastUserInteraction;
+                const isUserActive = timeSinceInteraction < 5000; // 5s threshold
+                
+                const lagEntry = { 
                     timestamp: new Date().toLocaleTimeString('cs-CZ'), 
                     duration: Math.round(entry.duration)
-                });
+                };
+                
+                // Kategorizuj lag
+                if (!isTabActive) {
+                    // Background tab throttling - IGNORUJ!
+                    backgroundLags.push({ ...lagEntry, reason: 'background-tab' });
+                    console.log('⚪ Background lag (OK):', lagEntry.duration + 'ms');
+                    
+                } else if (!isUserActive) {
+                    // Idle GC - méně kritické
+                    backgroundLags.push({ ...lagEntry, reason: 'idle-gc' });
+                    console.log('🟡 Idle lag (OK):', lagEntry.duration + 'ms');
+                    
+                } else {
+                    // SKUTEČNÝ user-visible lag!
+                    realLags.push({ ...lagEntry, reason: 'user-visible' });
+                    longTasks.push(lagEntry); // Pro backward compatibility
+                    console.log('🔴 REAL LAG (BAD):', lagEntry.duration + 'ms');
+                    addToTimeline('⚠️ Real User Lag', `${Math.round(entry.duration)}ms`);
+                }
+                
                 if (longTasks.length > 20) longTasks.shift();
-                addToTimeline('⚠️ System Lag', `${Math.round(entry.duration)}ms`);
+                if (realLags.length > 20) realLags.shift();
+                if (backgroundLags.length > 50) backgroundLags.shift();
                 
                 if (isDashboardOpen) updateDashboard();
             }
         });
     });
     taskObserver.observe({ entryTypes: ['longtask'] });
+    console.log('✅ Smart Lag Detection aktivní!');
 } catch (e) {
     console.log('ℹ️ Long Tasks API není podporováno');
 }
@@ -218,15 +267,26 @@ function updateDashboard() {
     updateElement('dash-links-edited', linkOperations.edited);
     updateElement('dash-links-moved', linkOperations.moved);
     
-    // 9. LONG TASKS
-    updateElement('dash-long-tasks', longTasks.length);
+    // 9. 🆕 SMART LONG TASKS (Real vs Background)
+    updateElement('dash-long-tasks', realLags.length); // Jen real lagy!
+    updateElement('dash-background-lags', backgroundLags.length); // Background lagy
+    
     const longTasksList = document.getElementById('dash-long-tasks-list');
-    if (longTasksList && longTasks.length > 0) {
-        longTasksList.innerHTML = longTasks.slice(-5).reverse().map(lt => 
-            `<div>[${lt.timestamp}] Lag: ${lt.duration}ms</div>`
-        ).join('');
-    } else if (longTasksList) {
-        longTasksList.innerHTML = '<div style="color: #00ff00;">✅ Žádné incidenty</div>';
+    if (longTasksList) {
+        if (realLags.length > 0) {
+            longTasksList.innerHTML = realLags.slice(-5).reverse().map(lt => 
+                `<div style="color: #ff3333;">[${lt.timestamp}] 🔴 User-visible: ${lt.duration}ms</div>`
+            ).join('');
+        } else {
+            longTasksList.innerHTML = '<div style="color: #00ff00;">✅ Žádné real lagy!</div>';
+        }
+        
+        // Přidej background lagy (pro info)
+        if (backgroundLags.length > 0) {
+            longTasksList.innerHTML += `<div style="color: #888; margin-top: 10px; font-size: 0.9em;">
+                ⚪ Background/Idle: ${backgroundLags.length}× (normální)
+            </div>`;
+        }
     }
 }
 
@@ -254,28 +314,236 @@ function updateProgressBar(id, percent) {
     }
 }
 
+// ========================================
+// 🆕 ROZŠÍŘENÁ DETEKCE ZAŘÍZENÍ
+// ========================================
+
 function detectDeviceType() {
     const ua = navigator.userAgent.toLowerCase();
     const cores = navigator.hardwareConcurrency || 0;
+    const screen = window.screen;
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     
-    // Lenovo IdeaPad Gaming 3 detection
+    // ========================================
+    // 🖥️ DESKTOPY & NOTEBOOKY
+    // ========================================
+    
+    // Lenovo IdeaPad Gaming 3 (high-end)
     if (ua.includes('windows') && cores >= 12) {
-        return "Lenovo IdeaPad Gaming 3 (Ryzen)";
+        return "💻 Lenovo IdeaPad Gaming 3 (Ryzen 12C)";
     }
     
-    if (/iphone|ipad|ipod/.test(ua)) {
-        return "Apple iOS Device";
+    // Windows notebooky (obecné)
+    if (ua.includes('windows') && cores >= 4 && cores < 12) {
+        return `💻 Windows Notebook (${cores}C)`;
     }
+    
+    // Windows desktop (nízký počet jader nebo vysoký výkon)
+    if (ua.includes('windows') && (cores <= 2 || cores >= 16)) {
+        return `🖥️ Windows Desktop (${cores}C)`;
+    }
+    
+    // MacOS
+    if (ua.includes('macintosh') || ua.includes('mac os x')) {
+        if (cores >= 8) {
+            return `🍎 MacBook Pro (${cores}C)`;
+        } else {
+            return `🍎 MacBook Air (${cores}C)`;
+        }
+    }
+    
+    // Linux desktopy
+    if (ua.includes('linux') && !ua.includes('android')) {
+        return `🐧 Linux Desktop (${cores}C)`;
+    }
+    
+    // ========================================
+    // 📱 MOBILNÍ TELEFONY - ANDROID
+    // ========================================
     
     if (ua.includes('android')) {
-        return "Android Mobile";
+        // Infinix modely
+        if (ua.includes('infinix')) {
+            if (ua.includes('note 30')) {
+                return "📱 Infinix Note 30 4G";
+            }
+            if (ua.includes('note 40')) {
+                return "📱 Infinix Note 40 5G";
+            }
+            if (ua.includes('hot')) {
+                return "📱 Infinix Hot Series";
+            }
+            return "📱 Infinix Mobile";
+        }
+        
+        // Realme modely
+        if (ua.includes('realme') || ua.includes('rmx')) {
+            if (ua.includes('realme 8') || ua.includes('rmx3241')) {
+                return "📱 Realme 8 5G";
+            }
+            if (ua.includes('realme 9') || ua.includes('rmx3521')) {
+                return "📱 Realme 9 Pro+";
+            }
+            if (ua.includes('realme gt')) {
+                return "📱 Realme GT Series";
+            }
+            return "📱 Realme Mobile";
+        }
+        
+        // Xiaomi/Redmi modely
+        if (ua.includes('xiaomi') || ua.includes('redmi') || ua.includes('mi ')) {
+            if (ua.includes('redmi 10c')) {
+                return "📱 Xiaomi Redmi 10C";
+            }
+            if (ua.includes('redmi note')) {
+                return "📱 Redmi Note Series";
+            }
+            if (ua.includes('poco')) {
+                return "📱 Poco Phone";
+            }
+            if (ua.includes('mi 11') || ua.includes('mi 12') || ua.includes('mi 13')) {
+                return "📱 Xiaomi Mi Flagship";
+            }
+            return "📱 Xiaomi/Redmi Mobile";
+        }
+        
+        // Samsung modely
+        if (ua.includes('samsung')) {
+            if (ua.includes('galaxy s')) {
+                return "📱 Samsung Galaxy S Series";
+            }
+            if (ua.includes('galaxy note')) {
+                return "📱 Samsung Galaxy Note";
+            }
+            if (ua.includes('galaxy a')) {
+                return "📱 Samsung Galaxy A Series";
+            }
+            if (ua.includes('galaxy m')) {
+                return "📱 Samsung Galaxy M Series";
+            }
+            return "📱 Samsung Mobile";
+        }
+        
+        // OnePlus
+        if (ua.includes('oneplus')) {
+            return "📱 OnePlus Mobile";
+        }
+        
+        // Huawei
+        if (ua.includes('huawei') || ua.includes('honor')) {
+            return "📱 Huawei/Honor Mobile";
+        }
+        
+        // Oppo
+        if (ua.includes('oppo')) {
+            return "📱 Oppo Mobile";
+        }
+        
+        // Vivo
+        if (ua.includes('vivo')) {
+            return "📱 Vivo Mobile";
+        }
+        
+        // Nokia
+        if (ua.includes('nokia')) {
+            return "📱 Nokia Mobile";
+        }
+        
+        // Motorola
+        if (ua.includes('motorola') || ua.includes('moto')) {
+            return "📱 Motorola Mobile";
+        }
+        
+        // Google Pixel
+        if (ua.includes('pixel')) {
+            return "📱 Google Pixel";
+        }
+        
+        // Obecný Android (fallback)
+        if (screen.width <= 480) {
+            return `📱 Android Mobile (${screen.width}×${screen.height})`;
+        } else if (screen.width <= 768) {
+            return `📱 Android Phablet (${screen.width}×${screen.height})`;
+        } else {
+            return `📱 Android Device (${screen.width}×${screen.height})`;
+        }
     }
     
-    if (ua.includes('macintosh')) {
-        return "MacOS Desktop";
+    // ========================================
+    // 🍎 iOS ZAŘÍZENÍ
+    // ========================================
+    
+    if (/iphone/.test(ua)) {
+        if (screen.height >= 2796) return "📱 iPhone 15 Pro Max";
+        if (screen.height >= 2556) return "📱 iPhone 14 Pro";
+        if (screen.height >= 2532) return "📱 iPhone 12/13/14";
+        if (screen.height >= 2436) return "📱 iPhone X/XS/11 Pro";
+        return "📱 iPhone";
     }
     
-    return ua.includes('windows') ? 'Windows Desktop' : 'Unknown Device';
+    if (/ipad/.test(ua)) {
+        if (screen.width >= 1024) {
+            return "📱 iPad Pro";
+        } else {
+            return "📱 iPad";
+        }
+    }
+    
+    if (/ipod/.test(ua)) {
+        return "📱 iPod Touch";
+    }
+    
+    // ========================================
+    // 🖥️ TABLETY
+    // ========================================
+    
+    // Android tablety
+    if (ua.includes('android') && screen.width >= 768) {
+        if (ua.includes('samsung')) {
+            return "📱 Samsung Galaxy Tab";
+        }
+        if (ua.includes('lenovo')) {
+            return "📱 Lenovo Tablet";
+        }
+        if (ua.includes('huawei')) {
+            return "📱 Huawei MatePad";
+        }
+        return `📱 Android Tablet (${screen.width}×${screen.height})`;
+    }
+    
+    // ========================================
+    // 🎮 HERNÍ KONZOLE & SPECIÁLNÍ ZAŘÍZENÍ
+    // ========================================
+    
+    if (ua.includes('playstation')) {
+        return "🎮 PlayStation";
+    }
+    
+    if (ua.includes('xbox')) {
+        return "🎮 Xbox";
+    }
+    
+    if (ua.includes('nintendo')) {
+        return "🎮 Nintendo Switch";
+    }
+    
+    if (ua.includes('smart-tv') || ua.includes('smarttv')) {
+        return "📺 Smart TV";
+    }
+    
+    // ========================================
+    // ❓ FALLBACK (Neznámé zařízení)
+    // ========================================
+    
+    if (ua.includes('windows')) {
+        return `🖥️ Windows PC (${cores}C)`;
+    }
+    
+    if (isTouchDevice) {
+        return `📱 Touch Device (${screen.width}×${screen.height})`;
+    }
+    
+    return `❓ Unknown Device (${cores}C, ${screen.width}×${screen.height})`;
 }
 
 function updateSparkline() {
@@ -358,6 +626,8 @@ function clearPerfStats() {
         linkOperations = { added: 0, deleted: 0, edited: 0, moved: 0 };
         timeline = [];
         longTasks = [];
+        realLags = [];
+        backgroundLags = [];
         
         startTime = Date.now();
         addToTimeline('Stats Cleared', 'Veškeré statistiky vymazány');
@@ -479,7 +749,7 @@ function exportPerfReport() {
     
     const report = `
 ═══════════════════════════════════════════════════════════════
-    ⚡ PERFORMANCE REPORT v3.1 - Hvězdná Databáze
+    ⚡ PERFORMANCE REPORT v3.2 - Hvězdná Databáze (SMART)
 ═══════════════════════════════════════════════════════════════
 
 📅 Datum a čas: ${timestamp}
@@ -533,10 +803,17 @@ Upraveno odkazů:         ${linkOperations.edited}
 Přesunuto odkazů:        ${linkOperations.moved}
 
 ───────────────────────────────────────────────────────────────
-⚠️ INCIDENTY (Záseky > 50ms)
+⚠️ SMART LAG ANALYSIS (NOVÉ v3.2)
 ───────────────────────────────────────────────────────────────
-Počet detekovaných:      ${longTasks.length}
-${longTasks.slice(-5).map(lt => `[${lt.timestamp}] Doba: ${lt.duration}ms`).join('\n')}
+🔴 Real User-Visible Lags:  ${realLags.length}
+⚪ Background/Idle Lags:     ${backgroundLags.length} (normální)
+📊 Total Incidents:          ${longTasks.length}
+
+🔴 REAL LAGS (posledních 5):
+${realLags.slice(-5).map(lt => `[${lt.timestamp}] User-visible: ${lt.duration}ms`).join('\n') || '✅ Žádné skutečné lagy!'}
+
+⚪ BACKGROUND LAGS (info):
+${backgroundLags.slice(-3).map(lt => `[${lt.timestamp}] ${lt.reason}: ${lt.duration}ms`).join('\n') || 'Žádné background lagy'}
 
 ───────────────────────────────────────────────────────────────
 ⏱️ TIMELINE (Posledních 20 událostí)
@@ -544,8 +821,9 @@ ${longTasks.slice(-5).map(lt => `[${lt.timestamp}] Doba: ${lt.duration}ms`).join
 ${timeline.slice(-20).map(event => `${event.time} - ${event.action}: ${event.details}`).join('\n')}
 
 ═══════════════════════════════════════════════════════════════
-Vygenerováno: Performance Monitor v3.1 (Calibrated)
+Vygenerováno: Performance Monitor v3.2 (Smart Edition)
 Vice admirál Jiřík - Hvězdná flotila
+🆕 Smart Lag Detection: Ignoruje background throttling!
 ═══════════════════════════════════════════════════════════════
     `.trim();
     
@@ -561,7 +839,7 @@ function exportPerfJson() {
         meta: {
             app: "Star Trek Database",
             author: "Vice admirál Jiřík",
-            version: "3.1 Calibrated",
+            version: "3.2 Smart Edition",
             timestamp: new Date().toISOString(),
             timestamp_cz: new Date().toLocaleString('cs-CZ'),
             uptime_seconds: Math.floor((Date.now() - startTime) / 1000)
@@ -590,8 +868,15 @@ function exportPerfJson() {
             cache_details: cacheInfo
         },
         incidents: {
-            long_tasks_count: longTasks.length,
-            long_tasks_log: longTasks
+            real_lags_count: realLags.length,
+            background_lags_count: backgroundLags.length,
+            total_long_tasks: longTasks.length,
+            real_lags_log: realLags,
+            background_lags_log: backgroundLags.slice(-10) // Jen posledních 10
+        },
+        tab_status: {
+            is_active: isTabActive,
+            last_user_interaction_ago_ms: Date.now() - lastUserInteraction
         },
         operations: linkOperations,
         timeline: timeline
@@ -614,6 +899,8 @@ function downloadFile(content, fileName, contentType) {
 // ========================================
 
 monitorPerformance();
-addToTimeline('Performance Monitor v3.1', 'Systém zkalibrován a spuštěn');
-console.log('✅ Performance Monitor v3.1 (Calibrated Edition) je online!');
+addToTimeline('Performance Monitor v3.2', 'Smart Edition aktivována!');
+console.log('✅ Performance Monitor v3.2 (Smart Edition) je online!');
+console.log('🆕 Rozšířená detekce zařízení aktivní!');
+console.log('🆕 Smart Lag Detection aktivní!');
 console.log('🖖 Vice admirál Jiřík - Všechny systémy funkční!');
