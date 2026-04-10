@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Star Trek Tabulka Odkazů</title>
+    <link rel="icon" href="https://img40.rajce.idnes.cz/d4003/19/19517/19517492_984d6887838eae80a8eb677199393188/images/image_82x82_2.jpg?ver=0" type="image/png">
+     <link rel="stylesheet" href="style.css">
+     <link rel="stylesheet" href="perfMode.css">
+    <link rel="stylesheet" href="modal.css">
+    <!-- V <head> -->
+<link rel="stylesheet" href="scrollbar.css">
+ <link rel="stylesheet" href="browser-status.css">   
+</head>
+<body>
+<!-- Přidej PŘED </body> -->
+<button id="fullscreen-button" class="fullscreen-btn" title="Celoobrazovkový režim">
+    ⛶
+</button>
+    <div id="browser-status" class="ukazatel">
+    <span style="color: #ff00ff;"> </span> 
+    <strong> </strong> 
+    <span id="browser-info" style="color: #ffff00; font-weight: bold;"></span>
+</div>
+<div class="background-image-container">
+   <img src="">
+</div>
+    
+    <div class="page-container">
+        <h1>Hvězdná Databáze Odkazů</h1>
+
+         
+        
+        <!-- 🚀 NOVÁ SEKCE: NAVIGACE STRÁNEK -->
+        <div class="pages-navigation-section">
+            <div class="pages-header">
+                <h2>📑 Správa Stránek</h2>
+                <div class="add-page-form">
+                    <input 
+                        type="text" 
+                        id="newPageName" 
+                        placeholder="Název nové stránky..." 
+                        maxlength="30"
+                    >
+                    <button id="addPageButton">➕ Vytvořit stránku</button>
+                </div>
+            </div>
+            
+            <!-- TAB NAVIGACE -->
+            <div id="pageTabs" class="page-tabs-container">
+                <div class="page-tab-loading">⏳ Načítám stránky...</div>
+            </div>
+        </div>
+        
+        <!-- PŮVODNÍ FORMULÁŘ PRO PŘIDÁNÍ ODKAZU -->
+        <div class="form-container">
+            <label for="linkName">Název Odkazu</label>
+            <input type="text" id="linkName" placeholder="Např. Starfleet Command" required>
+
+            <label for="linkUrl">URL Adresa</label>
+            <input type="url" id="linkUrl" placeholder="Např. https://www.startrek.com" required>
+        </div>
+
+        <!-- VYHLEDÁVACÍ PANEL -->
+        <div class="search-container">
+            <div class="search-wrapper">
+                <label for="searchInput">🔍 Vyhledat odkaz</label>
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Zadej název nebo URL..." 
+                    autocomplete="off"
+                >
+                <button id="clearSearchButton" title="Vymazat vyhledávání">✖️</button>
+            </div>
+            <div id="searchResults" class="search-results">
+                Nalezeno: <span id="searchCount">0</span> odkazů
+            </div>
+        </div> 
+        
+        <div class="tlacitka">
+            <button id="addLinkButton">➕ Přidat odkaz</button>
+            <button id="jirik-manual-opener-btn">📋 Jiříkův Hlídač</button>
+            <button id="clearAllLinksButton" style="display: none" >🗑️ VYMAZAT VŠE</button>
+            
+        </div>
+        
+        <div class="table-scroll-wrapper">
+            <table id="linksTable">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Název odkazu</th>
+                        <th>Adresa (HTTPS)</th>
+                        <th>Akce</th>
+                    </tr>
+                </thead>
+                <tbody id="linksTableBody">
+                    <tr><td colspan="4" style="text-align: center; color: #888;">⏳ Načítám odkazy z Hvězdné databáze...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- FOOTER -->
+    <footer class="copyright-footer">
+        © Všechna práva vyhrazena – Více admirál Jiřík
+    </footer>
+    
+    <div id="syncStatusMessage" class="sync-status-message">
+        Probíhá synchronizace dat...
+    </div>
+
+    <!-- MODAL PRO EDITACI -->
+    <div id="editLinkModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Upravit odkaz</h2>
+            <input type="hidden" id="modalLinkId">
+            
+            <label for="modalLinkName">Název odkazu:</label>
+            <input type="text" id="modalLinkName" placeholder="Např. Starfleet Command" required>
+
+            <label for="modalLinkUrl">URL adresa:</label>
+            <input type="url" id="modalLinkUrl" placeholder="Např. https://www.startrek.com" required>
+
+            <label for="modalLinkPosition">📍 Přesunout na pozici (řádek):</label>
+            <input type="number" id="modalLinkPosition" min="1" placeholder="Aktuální pozice: --">
+
+            <label for="modalPageSelect">Umístění (Stránka):</label>
+            <select id="modalPageSelect">
+                </select>
+
+            <div class="modal-buttons">
+                <button id="saveEditButton">✅ Uložit</button>
+                <button id="cancelEditButton">❌ Zrušit</button>
+            </div>
+        </div>
+    </div>
+   <!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- PERFORMANCE DASHBOARD v3.1 - COMPLETE HTML STRUCTURE          -->
+<!-- Vložit do index.html PŘED </body>                              -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+
+<!-- KOMPAKTNÍ INDIKÁTOR - JEDINÝ OVLÁDACÍ PRVEK -->
+<div id="perfMode" onclick="togglePerfDashboard()" title="Klikni pro otevření Performance Dashboard">
+    ⚡ Načítání...
+</div>
+
+<!-- MODAL S DASHBOARDEM -->
+<div id="perfDashboardModal">
+    <div class="perf-dashboard">
+        <h2>⚡ PERFORMANCE DASHBOARD v3.1</h2>
+
+        <!-- RENDERING METRIKY -->
+        <div class="perf-metric-group">
+            <h3>🎨 Rendering & FPS</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">FPS (snímků/s):</span>
+                <span class="perf-metric-value" id="dash-fps">-- FPS</span>
+            </div>
+            <div class="sparkline" id="fps-sparkline"></div>
+            
+            <div class="perf-metric">
+                <span class="perf-metric-label">Last Render Time:</span>
+                <span class="perf-metric-value" id="dash-render-time">-- ms</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Avg Render Time:</span>
+                <span class="perf-metric-value" id="dash-avg-render">-- ms</span>
+            </div>
+        </div>
+
+        <!-- PAMĚŤ -->
+        <div class="perf-metric-group">
+            <h3>💾 Memory Usage (RAM)</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Used Memory:</span>
+                <span class="perf-metric-value" id="dash-memory">-- MB</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="memory-progress" style="width: 0%"></div>
+            </div>
+            <div class="perf-metric" style="margin-top: 10px;">
+                <span class="perf-metric-label">Memory Limit:</span>
+                <span class="perf-metric-value" id="dash-memory-limit">-- MB</span>
+            </div>
+        </div>
+
+        <!-- FIREBASE & CACHE -->
+        <div class="perf-metric-group">
+            <h3>🔥 Firebase & Cache</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Firebase Queries:</span>
+                <span class="perf-metric-value" id="dash-queries">0</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Cache Hit Rate:</span>
+                <span class="perf-metric-value" id="dash-cache-rate">--%</span>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="cache-progress" style="width: 0%"></div>
+            </div>
+            <div class="perf-metric" style="margin-top: 10px;">
+                <span class="perf-metric-label">Links in Cache:</span>
+                <span class="perf-metric-value" id="dash-links-cached">0</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Pages in Cache:</span>
+                <span class="perf-metric-value" id="dash-pages-cached">0</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Cache TTL:</span>
+                <span class="perf-metric-value" id="dash-cache-ttl">--s</span>
+            </div>
+        </div>
+
+        <!-- NETWORK -->
+        <div class="perf-metric-group">
+            <h3>🌐 Network</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Avg Latency:</span>
+                <span class="perf-metric-value" id="dash-latency">-- ms</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Network RTT:</span>
+                <span class="perf-metric-value" id="dash-rtt">-- ms</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Connection:</span>
+                <span class="perf-metric-value" id="dash-connection">--</span>
+            </div>
+        </div>
+
+        <!-- SYSTEM INFO -->
+        <div class="perf-metric-group">
+            <h3>📱 System Info</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Device:</span>
+                <span class="perf-metric-value" id="dash-device">--</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Battery:</span>
+                <span class="perf-metric-value" id="dash-battery">-- %</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Screen:</span>
+                <span class="perf-metric-value" id="dash-screen">--</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Uptime:</span>
+                <span class="perf-metric-value" id="dash-uptime">--</span>
+            </div>
+        </div>
+
+        <!-- 🆕 PAGE SWITCHING STATS -->
+        <div class="perf-metric-group">
+            <h3>📊 Page Switch Performance</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Total Switches:</span>
+                <span class="perf-metric-value" id="dash-page-switches">0x</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Avg Time:</span>
+                <span class="perf-metric-value" id="dash-page-avg">-- ms</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Fastest:</span>
+                <span class="perf-metric-value" id="dash-page-fastest">-- ms</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Slowest:</span>
+                <span class="perf-metric-value" id="dash-page-slowest">-- ms</span>
+            </div>
+        </div>
+
+        <!-- 🆕 LINK OPERATIONS -->
+        <div class="perf-metric-group">
+            <h3>📝 Link Operations</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Added:</span>
+                <span class="perf-metric-value" id="dash-links-added">0</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Deleted:</span>
+                <span class="perf-metric-value" id="dash-links-deleted">0</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Edited:</span>
+                <span class="perf-metric-value" id="dash-links-edited">0</span>
+            </div>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Moved:</span>
+                <span class="perf-metric-value" id="dash-links-moved">0</span>
+            </div>
+        </div>
+
+        <!-- 🆕 SYSTEM INCIDENTS -->
+        <div class="perf-metric-group">
+            <h3>⚠️ System Incidents</h3>
+            <div class="perf-metric">
+                <span class="perf-metric-label">Long Tasks (>50ms):</span>
+                <span class="perf-metric-value" id="dash-long-tasks">0</span>
+            </div>
+            <div id="dash-long-tasks-list" style="font-size: 0.85em; color: #ffaa00; margin-top: 8px; max-height: 100px; overflow-y: auto;">
+                <!-- Dynamicky generovaný seznam -->
+            </div>
+        </div>
+
+        <!-- AKCE -->
+        <div class="perf-actions">
+            <button class="perf-btn" onclick="exportPerfReport()">📥 Export TXT</button>
+            <button class="perf-btn" onclick="exportPerfJson()">📦 Export JSON</button>
+            <button class="perf-btn" onclick="forceRefreshCache()">🔄 Refresh Cache</button>
+            <button class="perf-btn" onclick="clearPerfStats()">📊 Clear Stats</button>
+            <button class="perf-btn danger" onclick="togglePerfDashboard()">❌ Zavřít</button>
+        </div>
+    </div>
+</div>
+    
+     
+    <!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- FIREBASE SDK - Základní knihovny (BEZ defer - musí být první!) -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- DEBUGGER - Hlídač chyb (zachytí vše, co přijde po něm) -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<script src="jirkuv-hlidac.js" defer></script>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- FIREBASE FUNKCE - Komunikace s databází -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<script src="firebaseLinksFunctions.js" defer></script>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- DATA - Odkazy a obsah (MUSÍ být PŘED logikou!) -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<script src="links.js" defer></script>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- LOGIKA - Moduly závislé na datech -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<script src="pagination.js" defer></script>
+<script src="search.js" defer></script>
+<script src="modal.js" defer></script>
+
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- UI MODULY - Vizuální prvky a správa tapety -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- <script src="Sprava-tapet-defer.js"  defer></script> -->   
+  <script src="Sprava-tapet-async.js"  async></script> 
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- TESTOVACÍ MODUL - style.css importovaný do JS -->
+<!-- POZNÁMKA: Zakomentováno - používáš hlavní style.css soubor -->
+<!-- ═══════════════════════════════════════════════════════════════ -->
+<!-- <script src="style-javascript.js" defer></script> -->
+<script src="fullscreen-manager.js" defer></script>
+<script src="script.js" defer></script>
+ <script src="scrollbar.js"></script>   
+    
+    
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('browser-info').textContent = detectBrowser();
+    
+    // Animace při načtení
+    const status = document.getElementById('browser-status');
+    status.style.transform = 'translateX(-300px)';
+    setTimeout(() => {
+        status.style.transform = 'translateX(0)';
+    }, 100);
+});
+</script>
+</body>
+
+</html>
+
