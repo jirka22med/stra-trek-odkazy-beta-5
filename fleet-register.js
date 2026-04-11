@@ -6,10 +6,10 @@ const _buildDate = new Date();
 
 const _buildCounter = (() => {
     try {
-        const key = 'uss_prometheus_build';
+        const key = 'uss_prometheus-_build';
         // Načteme poslední uloženou hodnotu, fallback na 54 (navazujeme na tvoji historii)
-        const last = parseInt(localStorage.getItem(key) || '54', 10);
-        const next = isNaN(last) ? 55 : last + 1;
+        const last = parseInt(localStorage.getItem(key) || '1', 10);
+        const next = isNaN(last) ? 2 : last + 1;
         localStorage.setItem(key, next);
         return next;
     } catch (e) {
@@ -25,7 +25,7 @@ const FLEET_CONFIG = {
     buildNumber: _buildCounter,
 
     //=============toto se měnit nebude============
-    codename: "Prometheus-Class",
+    codename: "Prometheus-Class-",
 
     //=============toto se měnit nebude============
 
