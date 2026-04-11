@@ -106,7 +106,7 @@ console.log(
 );
 
 console.log(
-    `%c   Projekt běží na: https://jirka22med.github.io/star-trek-hudebni-prehravac-vylepsen-4-mobilni/ ✅`,
+    `%c   Projekt běží na: https://jirka22med.github.io/stra-trek-odkazy-beta-5/ ✅`,
     'color: #00FF00; font-size: 12px; font-weight: bold;'
 );
 
